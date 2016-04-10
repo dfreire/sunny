@@ -14,9 +14,6 @@ func init() {
 	if err != nil {
 		log.Fatal("Couldn't read the config file")
 	}
-
-	log.Info("Hello from Seelog!")
-	log.Debug("inside Fn()", "key1", 1, "key2", 2)
 }
 
 func main() {
