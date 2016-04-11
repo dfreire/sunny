@@ -1,11 +1,14 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
+	"github.com/getdiskette/drive-b"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/fasthttp"
-	log "github.com/mgutz/logxi/v1"
+	"github.com/labstack/echo/engine/standard"
+	"github.com/labstack/echo/middleware"
+	// log "github.com/mgutz/logxi/v1"
 	"github.com/spf13/viper"
 )
 
@@ -26,10 +29,15 @@ func initViper() {
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.Gzip())
+	e.Use(middleware.Recover())
+	e.Use(middleware.Logger())
 
 	// e.SetDebug(true)
 
-	e.Get("/", func(c echo.Context) error {
+	e.Use(driveb.GlobalMiddleware())
+
+	e.Get("/hello", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
@@ -65,5 +73,5 @@ func main() {
 	// adminGroup.Delete("/remove-unconfirmed-users", adminService.RemoveUnconfirmedUsers)
 	// adminGroup.Post("/remove-expired-reset-keys", adminService.RemoveExpiredResetKeys)
 
-	e.Run(fasthttp.New(":3500"))
+	e.Run(standard.New(":3500"))
 }
