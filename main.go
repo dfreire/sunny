@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/labstack/echo/engine/standard"
 	"github.com/labstack/echo/middleware"
 	// log "github.com/mgutz/logxi/v1"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
 )
 
@@ -27,7 +29,48 @@ func initViper() {
 	}
 }
 
+const SCHEMA = `
+CREATE TABLE IF NOT EXISTS customer_role (
+	id  TEXT PRIMARY KEY
+);
+
+INSERT INTO customer_role(id) VALUES ('sommelier');
+INSERT INTO customer_role(id) VALUES ('restaurant');
+INSERT INTO customer_role(id) VALUES ('wine_distribution');
+INSERT INTO customer_role(id) VALUES ('wine_shop');
+INSERT INTO customer_role(id) VALUES ('wine_lover');
+INSERT INTO customer_role(id) VALUES ('other');
+
+CREATE TABLE IF NOT EXISTS customer (
+	id          TEXT PRIMARY KEY,
+	email       TEXT,
+	role_id     TEXT,
+	created_at  TEXT,
+
+	FOREIGN KEY(role_id) REFERENCES customer_role(id)
+);
+
+CREATE TABLE IF NOT EXISTS customer_wine_comment (
+	id           TEXT PRIMARY KEY,
+	customer_id  TEXT,
+	wine_id      TEXT,
+	year         NUMBER,
+	created_at   TEXT,
+	updated_at   TEXT,
+	comment      TEXT,
+
+	UNIQUE(user_id, wine_id, year)
+);
+`
+
 func main() {
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		panic(err)
+	}
+
+	db.Exec(SCHEMA)
+
 	e := echo.New()
 	e.Use(middleware.Gzip())
 	e.Use(middleware.Recover())
