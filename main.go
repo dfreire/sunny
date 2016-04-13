@@ -54,12 +54,12 @@ CREATE TABLE IF NOT EXISTS customer_wine_comment (
 	id           TEXT PRIMARY KEY,
 	customer_id  TEXT,
 	wine_id      TEXT,
-	year         NUMBER,
+	wine_year    NUMBER,
 	created_at   TEXT,
 	updated_at   TEXT,
 	comment      TEXT,
 
-	UNIQUE(user_id, wine_id, year)
+	UNIQUE(user_id, wine_id, wine_year)
 );
 `
 
