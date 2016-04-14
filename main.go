@@ -44,7 +44,7 @@ func main() {
 	e.Use(echomiddleware.Recover())
 	e.Use(echomiddleware.Logger())
 
-	e.Use(middleware.Dependencies(dbx))
+	e.Use(middleware.Dependencies(db, dbx))
 	isAdminOrSpecificUser := middleware.IsAdminOrSpecificUser()
 
 	// e.SetDebug(true)

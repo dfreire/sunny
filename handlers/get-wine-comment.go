@@ -1,12 +1,12 @@
 package handlers
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/model"
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"gopkg.in/Masterminds/squirrel.v1"
 )
@@ -14,16 +14,21 @@ import (
 func GetWineComments(c echo.Context) error {
 	log.Println("GetWineComments")
 
-	dbx := c.Get(middleware.DBX).(*sqlx.DB)
+	db := c.Get(middleware.DB).(*sql.DB)
 
 	comments := []model.WineComment{}
 
-	sql, args, _ := squirrel.Select("*").From("WineComment").ToSql()
-	log.Println(sql, args)
-	rows, _ := dbx.Queryx(sql, args...)
+	rows, err := squirrel.
+		Select("id", "wineId", "wineYear", "comment").
+		From("WineComment").
+		RunWith(db).Query()
+	if err != nil {
+		return err
+	}
+
 	for rows.Next() {
 		var c model.WineComment
-		rows.StructScan(&c)
+		rows.Scan(&c.Id, &c.WineId, &c.WineYear, &c.Comment)
 		comments = append(comments, c)
 	}
 

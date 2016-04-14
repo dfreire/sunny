@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -8,13 +9,15 @@ import (
 )
 
 const (
+	DB  = "DB"
 	DBX = "DBX"
 )
 
-func Dependencies(dbx *sqlx.DB) echo.MiddlewareFunc {
+func Dependencies(db *sql.DB, dbx *sqlx.DB) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			log.Println("SetContext")
+			c.Set(DB, db)
 			c.Set(DBX, dbx)
 			return next(c)
 		}

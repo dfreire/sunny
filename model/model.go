@@ -4,9 +4,9 @@ func CustomerRoles() []string {
 	return []string{
 		"sommelier",
 		"restaurant",
-		"wine_distribution",
-		"wine_shop",
-		"wine_lover",
+		"Wine_distribution",
+		"Wine_shop",
+		"Wine_lover",
 		"other",
 	}
 }
@@ -21,18 +21,18 @@ func IsCustomerRole(role string) bool {
 }
 
 type Customer struct {
-	Id        string `json:"id",        dbx:"id"`
-	Email     string `json:"email",     dbx:"email"`
-	Role      string `json:"role",      dbx:"role"`
-	CreatedAt string `json:"createdAt", dbx:"createdAt"`
+	Id        string `json:"id,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Role      string `json:"role,omitempty"`
+	CreatedAt string `json:"createdAt,omitempty"`
 }
 
 type WineComment struct {
-	Id         string `json:"id",         dbx:"id"`
-	CustomerId string `json:"customerId", dbx:"customerId"`
-	WineId     string `json:"wineId",     dbx:"wineId"`
-	WineYear   int    `json:"wineYear",   dbx:"wineYear"`
-	CreatedAt  string `json:"createdAt",  dbx:"createdAt"`
-	UpdatedAt  string `json:"updatedAt",  dbx:"updatedAt"`
-	Comment    string `json:"comment",    dbx:"comment"`
+	Id         string `json:"id,omitempty"`
+	CustomerId string `json:"customerId,omitempty"`
+	WineId     string `json:"wineId,omitempty"`
+	WineYear   int    `json:"wineYear,omitempty"`
+	CreatedAt  string `json:"createdAt,omitempty"`
+	UpdatedAt  string `json:"updatedAt,omitempty"`
+	Comment    string `json:"comment,omitempty"`
 }
