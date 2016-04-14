@@ -3,22 +3,20 @@ package main
 import (
 	"database/sql"
 	"log"
-	"net/http"
 
-	"github.com/getdiskette/drive-b"
+	"github.com/dfreire/sunny/middleware"
+	"github.com/dfreire/sunny/model"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
-	"github.com/labstack/echo/middleware"
+	echomiddleware "github.com/labstack/echo/middleware"
 	// log "github.com/mgutz/logxi/v1"
+	"github.com/dfreire/sunny/handlers"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
 )
 
 func init() {
-	initViper()
-}
-
-func initViper() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
@@ -29,60 +27,29 @@ func initViper() {
 	}
 }
 
-const SCHEMA = `
-CREATE TABLE IF NOT EXISTS customer_role (
-	id  TEXT PRIMARY KEY
-);
-
-INSERT INTO customer_role(id) VALUES ('sommelier');
-INSERT INTO customer_role(id) VALUES ('restaurant');
-INSERT INTO customer_role(id) VALUES ('wine_distribution');
-INSERT INTO customer_role(id) VALUES ('wine_shop');
-INSERT INTO customer_role(id) VALUES ('wine_lover');
-INSERT INTO customer_role(id) VALUES ('other');
-
-CREATE TABLE IF NOT EXISTS customer (
-	id          TEXT PRIMARY KEY,
-	email       TEXT,
-	role_id     TEXT,
-	created_at  TEXT,
-
-	FOREIGN KEY(role_id) REFERENCES customer_role(id)
-);
-
-CREATE TABLE IF NOT EXISTS customer_wine_comment (
-	id           TEXT PRIMARY KEY,
-	customer_id  TEXT,
-	wine_id      TEXT,
-	wine_year    NUMBER,
-	created_at   TEXT,
-	updated_at   TEXT,
-	comment      TEXT,
-
-	UNIQUE(user_id, wine_id, wine_year)
-);
-`
-
 func main() {
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := sql.Open("sqlite3", viper.Get("SUNNY_SQLITE_DB").(string))
 	if err != nil {
 		panic(err)
 	}
 
-	db.Exec(SCHEMA)
+	if _, err := db.Exec(model.SCHEMA); err != nil {
+		panic(err)
+	}
+
+	dbx := sqlx.NewDb(db, "sqlite3")
 
 	e := echo.New()
-	e.Use(middleware.Gzip())
-	e.Use(middleware.Recover())
-	e.Use(middleware.Logger())
+	e.Use(echomiddleware.Gzip())
+	e.Use(echomiddleware.Recover())
+	e.Use(echomiddleware.Logger())
+
+	e.Use(middleware.Dependencies(dbx))
+	isAdminOrSpecificUser := middleware.IsAdminOrSpecificUser()
 
 	// e.SetDebug(true)
 
-	e.Use(driveb.GlobalMiddleware())
-
-	e.Get("/hello", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
+	e.Get("/wine-comments", handlers.GetWineComments, isAdminOrSpecificUser)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")
@@ -116,5 +83,6 @@ func main() {
 	// adminGroup.Delete("/remove-unconfirmed-users", adminService.RemoveUnconfirmedUsers)
 	// adminGroup.Post("/remove-expired-reset-keys", adminService.RemoveExpiredResetKeys)
 
+	log.Println("Running on port 3500")
 	e.Run(standard.New(":3500"))
 }
