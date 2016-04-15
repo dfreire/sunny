@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -26,7 +27,8 @@ func GetWineComments(c echo.Context) error {
 		From("WineComment").
 		RunWith(db).Query()
 	if err != nil {
-		return err
+		log.Printf("error: %+v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
 	}
 
 	for rows.Next() {
@@ -35,7 +37,7 @@ func GetWineComments(c echo.Context) error {
 		comments = append(comments, c)
 	}
 
-	return c.JSON(http.StatusOK, comments)
+	return c.JSON(http.StatusOK, map[string]interface{}{"ok": true, "data": comments})
 }
 
 func UpsertWineComment(c echo.Context) error {
@@ -46,23 +48,16 @@ func UpsertWineComment(c echo.Context) error {
 	comment := make(map[string]interface{})
 	c.Bind(&comment)
 
-	var rowsAffected int64
-	var err error
 	if comment["id"] == nil || comment["id"] == "" {
-		rowsAffected, err = insertWineComment(db, comment)
+		result, err := insertWineComment(db, comment)
+		return insertOrUpdateResponse(c, result, err)
 	} else {
-		rowsAffected, err = updateWineComment(db, comment)
+		result, err := updateWineComment(db, comment)
+		return insertOrUpdateResponse(c, result, err)
 	}
-
-	if rowsAffected == 0 || err != nil {
-		log.Printf("error: %+v", err)
-		return err
-	}
-
-	return c.JSON(http.StatusOK, comment)
 }
 
-func insertWineComment(db *sql.DB, comment map[string]interface{}) (int64, error) {
+func insertWineComment(db *sql.DB, comment map[string]interface{}) (sql.Result, error) {
 	log.Println("insertWineComment")
 
 	comment["id"] = bson.NewObjectId().Hex()
@@ -71,27 +66,42 @@ func insertWineComment(db *sql.DB, comment map[string]interface{}) (int64, error
 	comment["createdAt"] = createdAt
 	comment["updatedAt"] = createdAt
 
-	result, err := squirrel.
+	return squirrel.
 		Insert("WineComment").
 		SetMap(comment).
 		RunWith(db).Exec()
-
-	return result.RowsAffected()
 }
 
-func updateWineComment(db *sql.DB, comment map[string]interface{}) (int64, error) {
+func updateWineComment(db *sql.DB, comment map[string]interface{}) (sql.Result, error) {
 	log.Println("updateWineComment")
 
 	updatedAt := time.Now().Format(time.RFC3339)
 	comment["updatedAt"] = updatedAt
 
-	result, err := squirrel.
+	return squirrel.
 		Update("WineComment").
 		SetMap(comment).
 		Where(squirrel.Eq{
 			"id": comment["id"],
 		}).
 		RunWith(db).Exec()
+}
 
-	return result.RowsAffected()
+func insertOrUpdateResponse(c echo.Context, result sql.Result, err error) error {
+	if err != nil {
+		log.Printf("error: %+v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+	} else {
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			log.Printf("error: %+v", err)
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+		} else if rowsAffected == 0 {
+			err = errors.New("No rows affected")
+			log.Printf("error: %+v", err)
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"ok": true})
 }
