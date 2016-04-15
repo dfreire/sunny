@@ -22,6 +22,4 @@ const SCHEMA = `
     );
 
     INSERT INTO Customer (id, email) VALUES ("customer-1", "dario.freire@gmail.com");
-    INSERT INTO WineComment (id, customerId, wineId, wineYear, comment, createdAt, updatedAt) VALUES
-        ("comment-1", "customer-1", "wine-1", 2015, "great", "a", "b");
 `
