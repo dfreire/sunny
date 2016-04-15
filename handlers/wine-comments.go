@@ -28,7 +28,7 @@ func GetWineComments(c echo.Context) error {
 		RunWith(db).Query()
 	if err != nil {
 		log.Printf("error: %+v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 	}
 
 	for rows.Next() {
@@ -37,7 +37,7 @@ func GetWineComments(c echo.Context) error {
 		comments = append(comments, c)
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"ok": true, "data": comments})
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
 }
 
 func UpsertWineComment(c echo.Context) error {
@@ -90,18 +90,24 @@ func updateWineComment(db *sql.DB, comment map[string]interface{}) (sql.Result, 
 func insertOrUpdateResponse(c echo.Context, result sql.Result, err error) error {
 	if err != nil {
 		log.Printf("error: %+v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 	} else {
 		rowsAffected, err := result.RowsAffected()
 		if err != nil {
 			log.Printf("error: %+v", err)
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+			return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		} else if rowsAffected == 0 {
 			err = errors.New("No rows affected")
 			log.Printf("error: %+v", err)
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"ok": false})
+			return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		}
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"ok": true})
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+}
+
+type JsonResponse struct {
+	Ok    bool        `json:"ok"`
+	Data  interface{} `json:"data,omitempty"`
+	Error string      `json:"error,omitempty"`
 }
