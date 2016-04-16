@@ -52,6 +52,9 @@ func UpsertWineComment(c echo.Context) error {
 		result, err := insertWineComment(db, comment)
 		return insertOrUpdateResponse(c, result, err)
 	} else {
+		delete(comment, "customerId")
+		delete(comment, "wineId")
+		delete(comment, "wineYear")
 		result, err := updateWineComment(db, comment)
 		return insertOrUpdateResponse(c, result, err)
 	}
@@ -108,6 +111,6 @@ func insertOrUpdateResponse(c echo.Context, result sql.Result, err error) error 
 
 type JsonResponse struct {
 	Ok    bool        `json:"ok"`
-	Data  interface{} `json:"data,omitempty"`
+	Data  interface{} `json:"data"`
 	Error string      `json:"error,omitempty"`
 }
