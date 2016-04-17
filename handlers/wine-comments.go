@@ -79,3 +79,65 @@ func UpsertWineComment(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
 }
+
+// http http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" role="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}]'
+func SignupCustomerWithWineComment(c echo.Context) error {
+	log.Println("RegisterCustomerWithWineComment")
+
+	var reqData struct {
+		Email        string `json:"email"`
+		Role         string `json:"role"`
+		WineComments []struct {
+			WineId   string `json:"wineId"`
+			WineYear int    `json:"wineYear"`
+			Comment  string `json:"comment"`
+		} `json:"wineComments"`
+	}
+
+	c.Bind(&reqData)
+
+	db := c.Get(middleware.DB).(*sql.DB)
+
+	id, err := getOrCreateCustomerId(db, reqData.Email, reqData.Role)
+	if err != nil {
+		log.Printf("error: %+v", err)
+		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+	}
+
+	log.Printf("customer id: %+v", id)
+
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+}
+
+func getOrCreateCustomerId(db *sql.DB, email string, role string) (string, error) {
+	log.Println("getOrCreateCustomer")
+
+	rows, err := squirrel.
+		Select("id").
+		From("Customer").
+		Where(squirrel.Eq{"email": email}).
+		RunWith(db).Query()
+	if err != nil {
+		return "", err
+	}
+
+	var id string
+	for rows.Next() {
+		rows.Scan(&id)
+	}
+
+	if id == "" {
+		customer := crud.Record{
+			"email":     email,
+			"role":      role,
+			"createdAt": time.Now().Format(time.RFC3339),
+		}
+		err = crud.Create(db, "Customer", customer)
+		if err != nil {
+			return "", err
+		}
+		id = customer["id"].(string)
+	}
+
+	return id, nil
+}

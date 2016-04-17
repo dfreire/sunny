@@ -52,6 +52,7 @@ func main() {
 
 	e.Get("/customer-wine-comments", handlers.GetCustomerWineComments, isAdminOrSpecificUser)
 	e.Post("/wine-comment", handlers.UpsertWineComment, isSpecificUser)
+	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")
