@@ -45,12 +45,13 @@ func main() {
 	e.Use(echomiddleware.Logger())
 
 	e.Use(middleware.Dependencies(db, dbx))
+	isSpecificUser := middleware.IsSpecificUser()
 	isAdminOrSpecificUser := middleware.IsAdminOrSpecificUser()
 
 	// e.SetDebug(true)
 
 	e.Get("/wine-comments", handlers.GetWineComments, isAdminOrSpecificUser)
-	e.Post("/wine-comment", handlers.UpsertWineComment, isAdminOrSpecificUser)
+	e.Post("/wine-comment", handlers.UpsertWineComment, isSpecificUser)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")
