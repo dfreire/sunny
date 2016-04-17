@@ -2,13 +2,11 @@ package handlers
 
 import (
 	"database/sql"
-	"errors"
 	"log"
 	"net/http"
 	"time"
 
-	"labix.org/v2/mgo/bson"
-
+	"github.com/dfreire/sunny/crud"
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/model"
 	"github.com/labstack/echo"
@@ -45,72 +43,31 @@ func UpsertWineComment(c echo.Context) error {
 
 	db := c.Get(middleware.DB).(*sql.DB)
 
-	comment := make(map[string]interface{})
+	var comment crud.Record
 	c.Bind(&comment)
 
+	var err error
+
 	if comment["id"] == nil || comment["id"] == "" {
-		result, err := insertWineComment(db, comment)
-		return insertOrUpdateResponse(c, result, err)
+		createdAt := time.Now().Format(time.RFC3339)
+		comment["createdAt"] = createdAt
+		comment["updatedAt"] = createdAt
+		err = crud.Create(db, "WineComment", comment)
+
 	} else {
+		id := comment["id"].(string)
+		updatedAt := time.Now().Format(time.RFC3339)
+		comment["updatedAt"] = updatedAt
 		delete(comment, "customerId")
 		delete(comment, "wineId")
 		delete(comment, "wineYear")
-		result, err := updateWineComment(db, comment)
-		return insertOrUpdateResponse(c, result, err)
+		err = crud.Update(db, "WineComment", comment, []string{id})
 	}
-}
 
-func insertWineComment(db *sql.DB, comment map[string]interface{}) (sql.Result, error) {
-	log.Println("insertWineComment")
-
-	comment["id"] = bson.NewObjectId().Hex()
-
-	createdAt := time.Now().Format(time.RFC3339)
-	comment["createdAt"] = createdAt
-	comment["updatedAt"] = createdAt
-
-	return squirrel.
-		Insert("WineComment").
-		SetMap(comment).
-		RunWith(db).Exec()
-}
-
-func updateWineComment(db *sql.DB, comment map[string]interface{}) (sql.Result, error) {
-	log.Println("updateWineComment")
-
-	updatedAt := time.Now().Format(time.RFC3339)
-	comment["updatedAt"] = updatedAt
-
-	return squirrel.
-		Update("WineComment").
-		SetMap(comment).
-		Where(squirrel.Eq{
-			"id": comment["id"],
-		}).
-		RunWith(db).Exec()
-}
-
-func insertOrUpdateResponse(c echo.Context, result sql.Result, err error) error {
 	if err != nil {
 		log.Printf("error: %+v", err)
 		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
-	} else {
-		rowsAffected, err := result.RowsAffected()
-		if err != nil {
-			log.Printf("error: %+v", err)
-			return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
-		} else if rowsAffected == 0 {
-			err = errors.New("No rows affected")
-			log.Printf("error: %+v", err)
-			return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
-		}
 	}
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
-}
-
-type JsonResponse struct {
-	Ok    bool        `json:"ok"`
-	Data  interface{} `json:"data"`
-	Error string      `json:"error,omitempty"`
 }
