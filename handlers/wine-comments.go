@@ -13,16 +13,22 @@ import (
 	"gopkg.in/Masterminds/squirrel.v1"
 )
 
-func GetWineComments(c echo.Context) error {
-	log.Println("GetWineComments")
+// http http://localhost:3500/customer-wine-comments?customerId="customer-1"
+func GetCustomerWineComments(c echo.Context) error {
+	log.Println("GetCustomerWineComments")
+
+	customerId := c.QueryParam("customerId")
 
 	db := c.Get(middleware.DB).(*sql.DB)
 
 	comments := []model.WineComment{}
 
 	rows, err := squirrel.
-		Select("id", "customerId", "wineId", "wineYear", "comment").
+		Select("id", "wineId", "wineYear", "comment").
 		From("WineComment").
+		Where(squirrel.Eq{
+			"customerId": customerId,
+		}).
 		RunWith(db).Query()
 	if err != nil {
 		log.Printf("error: %+v", err)
@@ -31,13 +37,15 @@ func GetWineComments(c echo.Context) error {
 
 	for rows.Next() {
 		var c model.WineComment
-		rows.Scan(&c.Id, &c.CustomerId, &c.WineId, &c.WineYear, &c.Comment)
+		rows.Scan(&c.Id, &c.WineId, &c.WineYear, &c.Comment)
 		comments = append(comments, c)
 	}
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
 }
 
+// http POST http://localhost:3500/wine-comment wineId="wine-1" wineYear=2014 customerId="customer-1" comment="great"
+// http POST http://localhost:3500/wine-comment wineId="wine-1" wineYear=2014 customerId="customer-2" comment="fantastic" id="5713f0bf5a1d1801bb000001"
 func UpsertWineComment(c echo.Context) error {
 	log.Println("UpsertWineComment")
 

@@ -50,7 +50,7 @@ func main() {
 
 	// e.SetDebug(true)
 
-	e.Get("/wine-comments", handlers.GetWineComments, isAdminOrSpecificUser)
+	e.Get("/customer-wine-comments", handlers.GetCustomerWineComments, isAdminOrSpecificUser)
 	e.Post("/wine-comment", handlers.UpsertWineComment, isSpecificUser)
 
 	// userService := user.NewService(userCollection, jwtKey)
