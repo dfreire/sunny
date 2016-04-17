@@ -51,3 +51,28 @@ func sqlResult(result sql.Result, err error) error {
 
 	return nil
 }
+
+func EnsureRecord(db *sql.DB, tableName string, recordToFind squirrel.Eq, recordToCreate Record) (id string, err error) {
+	rows, err := squirrel.
+		Select("id").
+		From(tableName).
+		Where(recordToFind).
+		RunWith(db).Query()
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		rows.Scan(&id)
+	}
+
+	if id == "" {
+		err = Create(db, tableName, recordToCreate)
+		if err != nil {
+			return
+		}
+		id = recordToCreate["id"].(string)
+	}
+
+	return
+}

@@ -84,6 +84,8 @@ func UpsertWineComment(c echo.Context) error {
 func SignupCustomerWithWineComment(c echo.Context) error {
 	log.Println("RegisterCustomerWithWineComment")
 
+	db := c.Get(middleware.DB).(*sql.DB)
+
 	var reqData struct {
 		Email        string `json:"email"`
 		Role         string `json:"role"`
@@ -96,48 +98,24 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 
 	c.Bind(&reqData)
 
-	db := c.Get(middleware.DB).(*sql.DB)
+	customerId, err := crud.EnsureRecord(
+		db,
+		"Customer",
+		squirrel.Eq{
+			"email": reqData.Email,
+		},
+		crud.Record{
+			"email": reqData.Email,
+			"role":  reqData.Role,
+		},
+	)
 
-	id, err := getOrCreateCustomerId(db, reqData.Email, reqData.Role)
 	if err != nil {
 		log.Printf("error: %+v", err)
 		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 	}
 
-	log.Printf("customer id: %+v", id)
+	log.Printf("customerId: %+v", customerId)
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
-}
-
-func getOrCreateCustomerId(db *sql.DB, email string, role string) (string, error) {
-	log.Println("getOrCreateCustomer")
-
-	rows, err := squirrel.
-		Select("id").
-		From("Customer").
-		Where(squirrel.Eq{"email": email}).
-		RunWith(db).Query()
-	if err != nil {
-		return "", err
-	}
-
-	var id string
-	for rows.Next() {
-		rows.Scan(&id)
-	}
-
-	if id == "" {
-		customer := crud.Record{
-			"email":     email,
-			"role":      role,
-			"createdAt": time.Now().Format(time.RFC3339),
-		}
-		err = crud.Create(db, "Customer", customer)
-		if err != nil {
-			return "", err
-		}
-		id = customer["id"].(string)
-	}
-
-	return id, nil
 }
