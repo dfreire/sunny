@@ -40,6 +40,7 @@ func main() {
 	e.Use(echomiddleware.Gzip())
 	e.Use(echomiddleware.Recover())
 	e.Use(echomiddleware.Logger())
+	e.SetDebug(true)
 
 	withDB := middleware.WithDB(db)
 	withTX := middleware.WithTX(db)

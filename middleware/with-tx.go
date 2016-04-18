@@ -25,6 +25,7 @@ func WithTX(db *sql.DB) echo.MiddlewareFunc {
 			c.Set(TX, tx)
 			err = next(c)
 			if err != nil {
+				log.Printf("Rollback")
 				tx.Rollback()
 				log.Printf("error: %+v", err)
 				return err
@@ -32,10 +33,12 @@ func WithTX(db *sql.DB) echo.MiddlewareFunc {
 
 			err = tx.Commit()
 			if err != nil {
+				log.Printf("Rollback")
 				tx.Rollback()
 				log.Printf("error: %+v", err)
 				return err
 			}
+			log.Printf("Commit")
 
 			return nil
 		}
