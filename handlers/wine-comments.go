@@ -98,7 +98,7 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 
 	c.Bind(&reqData)
 
-	customerId, err := crud.EnsureRecord(
+	customerId, err := crud.UpsertRecord(
 		db,
 		"Customer",
 		squirrel.Eq{

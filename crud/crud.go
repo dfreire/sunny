@@ -37,22 +37,7 @@ func Delete(db *sql.DB, tableName string, ids []string) error {
 		RunWith(db).Exec())
 }
 
-func sqlResult(result sql.Result, err error) error {
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	} else if rowsAffected == 0 {
-		return errors.New("No rows changed.")
-	}
-
-	return nil
-}
-
-func EnsureRecord(db *sql.DB, tableName string, recordToFind squirrel.Eq, recordToCreate Record) (id string, err error) {
+func UpsertRecord(db *sql.DB, tableName string, recordToFind squirrel.Eq, recordToUpsert Record) (id string, err error) {
 	rows, err := squirrel.
 		Select("id").
 		From(tableName).
@@ -67,12 +52,33 @@ func EnsureRecord(db *sql.DB, tableName string, recordToFind squirrel.Eq, record
 	}
 
 	if id == "" {
-		err = Create(db, tableName, recordToCreate)
-		if err != nil {
-			return
-		}
-		id = recordToCreate["id"].(string)
+		err = Create(db, tableName, recordToUpsert)
+		id = RecordId(recordToUpsert)
+	} else {
+		err = Update(db, tableName, recordToUpsert, []string{id})
 	}
 
 	return
+}
+
+func RecordId(record Record) (id string) {
+	if record["id"] != nil {
+		id = record["id"].(string)
+	}
+	return
+}
+
+func sqlResult(result sql.Result, err error) error {
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	} else if rowsAffected == 0 {
+		return errors.New("No rows changed.")
+	}
+
+	return nil
 }
