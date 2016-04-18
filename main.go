@@ -6,7 +6,6 @@ import (
 
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/model"
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	echomiddleware "github.com/labstack/echo/middleware"
@@ -30,29 +29,25 @@ func init() {
 func main() {
 	db, err := sql.Open("sqlite3", viper.Get("SUNNY_SQLITE_DB").(string))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	if _, err := db.Exec(model.SCHEMA); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-
-	dbx := sqlx.NewDb(db, "sqlite3")
 
 	e := echo.New()
 	e.Use(echomiddleware.Gzip())
 	e.Use(echomiddleware.Recover())
 	e.Use(echomiddleware.Logger())
 
-	e.Use(middleware.Dependencies(db, dbx))
-	isSpecificUser := middleware.IsSpecificUser()
-	isAdminOrSpecificUser := middleware.IsAdminOrSpecificUser()
+	withDB := middleware.WithDB(db)
+	withTX := middleware.WithTX(db)
 
 	// e.SetDebug(true)
 
-	e.Get("/customer-wine-comments", handlers.GetCustomerWineComments, isAdminOrSpecificUser)
-	e.Post("/wine-comment", handlers.UpsertWineComment, isSpecificUser)
-	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment)
+	e.Get("/customer-wine-comments", handlers.GetCustomerWineComments, withDB)
+	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, withTX)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")

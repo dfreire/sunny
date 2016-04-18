@@ -44,47 +44,9 @@ func GetCustomerWineComments(c echo.Context) error {
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
 }
 
-// http POST http://localhost:3500/wine-comment wineId="wine-1" wineYear=2014 customerId="customer-1" comment="great"
-// http POST http://localhost:3500/wine-comment wineId="wine-1" wineYear=2014 customerId="customer-2" comment="fantastic" id="5713f0bf5a1d1801bb000001"
-func UpsertWineComment(c echo.Context) error {
-	log.Println("UpsertWineComment")
-
-	db := c.Get(middleware.DB).(*sql.DB)
-
-	var comment crud.Record
-	c.Bind(&comment)
-
-	var err error
-
-	if comment["id"] == nil || comment["id"] == "" {
-		createdAt := time.Now().Format(time.RFC3339)
-		comment["createdAt"] = createdAt
-		comment["updatedAt"] = createdAt
-		err = crud.Create(db, "WineComment", comment)
-
-	} else {
-		id := comment["id"].(string)
-		updatedAt := time.Now().Format(time.RFC3339)
-		comment["updatedAt"] = updatedAt
-		delete(comment, "customerId")
-		delete(comment, "wineId")
-		delete(comment, "wineYear")
-		err = crud.Update(db, "WineComment", comment, []string{id})
-	}
-
-	if err != nil {
-		log.Printf("error: %+v", err)
-		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
-	}
-
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
-}
-
-// http http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" role="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}]'
+// http POST http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" role="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
 func SignupCustomerWithWineComment(c echo.Context) error {
-	log.Println("RegisterCustomerWithWineComment")
-
-	db := c.Get(middleware.DB).(*sql.DB)
+	log.Println("SignupCustomerWithWineComment")
 
 	var reqData struct {
 		Email        string `json:"email"`
@@ -98,21 +60,49 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 
 	c.Bind(&reqData)
 
+	now := time.Now().Format(time.RFC3339)
+
+	tx := c.Get(middleware.TX).(*sql.Tx)
+
 	customerId, err := crud.UpsertRecord(
-		db,
+		tx,
 		"Customer",
-		squirrel.Eq{
+		crud.Record{
 			"email": reqData.Email,
 		},
 		crud.Record{
-			"email": reqData.Email,
-			"role":  reqData.Role,
+			"createdAt": now,
+		},
+		crud.Record{
+			"role": reqData.Role,
 		},
 	)
-
 	if err != nil {
-		log.Printf("error: %+v", err)
-		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
+	}
+
+	for _, comment := range reqData.WineComments {
+		_, err = crud.UpsertRecord(
+			tx,
+			"WineComment",
+			crud.Record{
+				"customerId": customerId,
+				"wineId":     comment.WineId,
+				"wineYear":   comment.WineYear,
+			},
+			crud.Record{
+				"createdAt": now,
+			},
+			crud.Record{
+				"updatedAt": now,
+				"comment":   comment.Comment,
+			},
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+			return err
+		}
 	}
 
 	log.Printf("customerId: %+v", customerId)

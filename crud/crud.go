@@ -10,39 +10,39 @@ import (
 
 type Record map[string]interface{}
 
-func Create(db *sql.DB, tableName string, record Record) error {
+func Create(tx *sql.Tx, tableName string, record Record) error {
 	record["id"] = bson.NewObjectId().Hex()
 
 	return sqlResult(squirrel.
 		Insert(tableName).
 		SetMap(record).
-		RunWith(db).Exec())
+		RunWith(tx).Exec())
 }
 
-func Update(db *sql.DB, tableName string, record Record, ids []string) error {
+func Update(tx *sql.Tx, tableName string, record Record, ids []string) error {
 	return sqlResult(squirrel.
 		Update(tableName).
 		SetMap(record).
 		Where(squirrel.Eq{
 			"id": ids,
 		}).
-		RunWith(db).Exec())
+		RunWith(tx).Exec())
 }
 
-func Delete(db *sql.DB, tableName string, ids []string) error {
+func Delete(tx *sql.Tx, tableName string, ids []string) error {
 	return sqlResult(squirrel.Delete("book").
 		Where(squirrel.Eq{
 			"id": ids,
 		}).
-		RunWith(db).Exec())
+		RunWith(tx).Exec())
 }
 
-func UpsertRecord(db *sql.DB, tableName string, recordToFind squirrel.Eq, recordToUpsert Record) (id string, err error) {
+func UpsertRecord(tx *sql.Tx, tableName string, recordToFind Record, recordToInsert Record, recordToUpdate Record) (id string, err error) {
 	rows, err := squirrel.
 		Select("id").
 		From(tableName).
-		Where(recordToFind).
-		RunWith(db).Query()
+		Where(recordToMap(recordToFind)).
+		RunWith(tx).Query()
 	if err != nil {
 		return
 	}
@@ -52,10 +52,12 @@ func UpsertRecord(db *sql.DB, tableName string, recordToFind squirrel.Eq, record
 	}
 
 	if id == "" {
-		err = Create(db, tableName, recordToUpsert)
-		id = RecordId(recordToUpsert)
+		recordToInsert = mergeRecords(recordToFind, recordToUpdate, recordToInsert)
+		err = Create(tx, tableName, recordToInsert)
+		id = RecordId(recordToInsert)
 	} else {
-		err = Update(db, tableName, recordToUpsert, []string{id})
+		recordToUpdate = mergeRecords(recordToFind, recordToUpdate)
+		err = Update(tx, tableName, recordToUpdate, []string{id})
 	}
 
 	return
@@ -81,4 +83,18 @@ func sqlResult(result sql.Result, err error) error {
 	}
 
 	return nil
+}
+
+func recordToMap(record Record) map[string]interface{} {
+	return record
+}
+
+func mergeRecords(records ...Record) Record {
+	dest := Record{}
+	for _, record := range records {
+		for k, v := range record {
+			dest[k] = v
+		}
+	}
+	return dest
 }

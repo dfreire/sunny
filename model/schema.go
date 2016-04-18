@@ -4,8 +4,8 @@ const SCHEMA = `
     CREATE TABLE IF NOT EXISTS Customer (
     	id        TEXT PRIMARY KEY,
     	email     TEXT NOT NULL,
-    	role      TEXT,
-    	createdAt TEXT
+    	role      TEXT NOT NULL,
+    	createdAt TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS WineComment (
@@ -15,11 +15,9 @@ const SCHEMA = `
     	wineYear   NUMBER NOT NULL,
     	comment    TEXT NOT NULL,
         createdAt  TEXT NOT NULL,
-    	updatedAt  TEXT NOT NULL,
+		updatedAt  TEXT NOT NULL,
 
         FOREIGN KEY(customerId) REFERENCES Customer(id),
     	UNIQUE(customerId, wineId, wineYear)
     );
-
-    INSERT INTO Customer (id, email) VALUES ("customer-1", "dario.freire@gmail.com");
 `
