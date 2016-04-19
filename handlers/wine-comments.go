@@ -13,8 +13,8 @@ import (
 	"gopkg.in/Masterminds/squirrel.v1"
 )
 
-// http http://localhost:3500/customer-wine-comments?customerId="customer-1"
-func GetCustomerWineComments(c echo.Context) error {
+// http http://localhost:3500/wine-comments/by-customer-id?customerId=customer-1
+func GetWineCommentsByCustomerId(c echo.Context) error {
 	log.Println("GetCustomerWineComments")
 
 	customerId := c.QueryParam("customerId")
@@ -32,7 +32,8 @@ func GetCustomerWineComments(c echo.Context) error {
 		RunWith(db).Query()
 	if err != nil {
 		log.Printf("error: %+v", err)
-		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
 	}
 
 	for rows.Next() {
@@ -64,7 +65,7 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 
 	tx := c.Get(middleware.TX).(*sql.Tx)
 
-	customerId, err := crud.UpsertRecord(
+	customerId, err := crud.Upsert(
 		tx,
 		"Customer",
 		crud.Record{
@@ -83,7 +84,7 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 	}
 
 	for _, comment := range reqData.WineComments {
-		_, err = crud.UpsertRecord(
+		_, err = crud.Upsert(
 			tx,
 			"WineComment",
 			crud.Record{
@@ -103,6 +104,44 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 			c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 			return err
 		}
+	}
+
+	log.Printf("customerId: %+v", customerId)
+
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+}
+
+// http POST http://localhost:3500/signup-customer-with-newsletter email="dario.freire@gmail.com" role="wine_lover"
+func SignupCustomerWithNewsletter(c echo.Context) error {
+	log.Println("SignupCustomerWithNewsletter")
+
+	var reqData struct {
+		Email string `json:"email"`
+		Role  string `json:"role"`
+	}
+
+	c.Bind(&reqData)
+
+	now := time.Now().Format(time.RFC3339)
+
+	tx := c.Get(middleware.TX).(*sql.Tx)
+
+	customerId, err := crud.Upsert(
+		tx,
+		"Customer",
+		crud.Record{
+			"email": reqData.Email,
+		},
+		crud.Record{
+			"createdAt": now,
+		},
+		crud.Record{
+			"role": reqData.Role,
+		},
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
 	}
 
 	log.Printf("customerId: %+v", customerId)

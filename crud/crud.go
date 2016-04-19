@@ -30,14 +30,15 @@ func Update(tx *sql.Tx, tableName string, record Record, ids []string) error {
 }
 
 func Delete(tx *sql.Tx, tableName string, ids []string) error {
-	return sqlResult(squirrel.Delete("book").
+	return sqlResult(squirrel.
+		Delete(tableName).
 		Where(squirrel.Eq{
 			"id": ids,
 		}).
 		RunWith(tx).Exec())
 }
 
-func UpsertRecord(tx *sql.Tx, tableName string, recordToFind Record, recordToInsert Record, recordToUpdate Record) (id string, err error) {
+func Upsert(tx *sql.Tx, tableName string, recordToFind Record, recordToInsert Record, recordToUpdate Record) (id string, err error) {
 	rows, err := squirrel.
 		Select("id").
 		From(tableName).
@@ -56,7 +57,6 @@ func UpsertRecord(tx *sql.Tx, tableName string, recordToFind Record, recordToIns
 		err = Create(tx, tableName, recordToInsert)
 		id = RecordId(recordToInsert)
 	} else {
-		recordToUpdate = mergeRecords(recordToFind, recordToUpdate)
 		err = Update(tx, tableName, recordToUpdate, []string{id})
 	}
 

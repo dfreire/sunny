@@ -47,8 +47,9 @@ func main() {
 
 	// e.SetDebug(true)
 
-	e.Get("/customer-wine-comments", handlers.GetCustomerWineComments, withDB)
+	e.Get("/wine-comments/by-customer-id", handlers.GetWineCommentsByCustomerId, withDB)
 	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, withTX)
+	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, withTX)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")
