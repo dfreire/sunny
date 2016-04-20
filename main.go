@@ -27,6 +27,8 @@ func init() {
 }
 
 func main() {
+	env := viper.Get("SUNNY_ENV").(string)
+
 	db, err := sql.Open("sqlite3", viper.Get("SUNNY_SQLITE_DB").(string))
 	if err != nil {
 		log.Fatal(err)
@@ -37,6 +39,9 @@ func main() {
 	}
 
 	e := echo.New()
+	if env == "development" {
+		e.SetDebug(true)
+	}
 	e.Use(echomiddleware.Gzip())
 	e.Use(echomiddleware.Recover())
 	e.Use(echomiddleware.Logger())
@@ -44,8 +49,6 @@ func main() {
 	logErr := middleware.LogErr()
 	withDB := middleware.WithDB(db)
 	withTX := middleware.WithTX(db)
-
-	// e.SetDebug(true)
 
 	e.Get("/wine-comments/by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB)
 	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, logErr, withTX)
@@ -83,6 +86,7 @@ func main() {
 	// adminGroup.Delete("/remove-unconfirmed-users", adminService.RemoveUnconfirmedUsers)
 	// adminGroup.Post("/remove-expired-reset-keys", adminService.RemoveExpiredResetKeys)
 
-	log.Println("Running on port 3500")
-	e.Run(standard.New(":3500"))
+	port := viper.Get("SUNNY_PORT").(string)
+	log.Printf("Running on port %s", port)
+	e.Run(standard.New(port))
 }

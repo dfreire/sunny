@@ -3,4 +3,4 @@
 .vscode/
 vendor/
 run-dev.sh
-sqlite.db
+sunny.db
