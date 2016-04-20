@@ -13,8 +13,6 @@ import (
 
 // http http://localhost:3500/wine-comments/by-customer-id?customerId=customer-1
 func GetWineCommentsByCustomerId(c echo.Context) error {
-	log.Println("GetCustomerWineComments")
-
 	customerId := c.QueryParam("customerId")
 
 	db := c.Get(middleware.DB).(*sql.DB)

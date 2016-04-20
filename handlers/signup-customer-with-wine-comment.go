@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"time"
 
@@ -13,8 +12,6 @@ import (
 
 // http POST http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" roleId="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
 func SignupCustomerWithWineComment(c echo.Context) error {
-	log.Println("SignupCustomerWithWineComment")
-
 	var reqData struct {
 		Email        string `json:"email"`
 		RoleId       string `json:"roleId"`
@@ -72,8 +69,6 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 			return err
 		}
 	}
-
-	log.Printf("customerId: %+v", customerId)
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
 }

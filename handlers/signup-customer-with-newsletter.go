@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"time"
 
@@ -13,8 +12,6 @@ import (
 
 // http POST http://localhost:3500/signup-customer-with-newsletter email="dario.freire@gmail.com" roleId="wine_lover"
 func SignupCustomerWithNewsletter(c echo.Context) error {
-	log.Println("SignupCustomerWithNewsletter")
-
 	var reqData struct {
 		Email  string `json:"email"`
 		RoleId string `json:"roleId"`
@@ -26,7 +23,7 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 
 	tx := c.Get(middleware.TX).(*sql.Tx)
 
-	customerId, err := crud.Upsert(
+	_, err := crud.Upsert(
 		tx,
 		"Customer",
 		crud.Record{
@@ -44,8 +41,6 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err
 	}
-
-	log.Printf("customerId: %+v", customerId)
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
 }

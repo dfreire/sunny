@@ -9,14 +9,12 @@ import (
 func LogErr() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
-			log.Println("LogErr Before")
+			log.Println(c.Request().URI())
 			err = next(c)
 			if err != nil {
 				log.Printf("error: %+v", err)
-				log.Println("LogErr After")
 				return err
 			}
-			log.Println("LogErr After")
 			return nil
 		}
 	}
