@@ -3,6 +3,6 @@
 .vscode/
 dist/
 vendor/
+run-prod.sh
 sunny-development.db
 sunny-production.db
-run-prod.sh
