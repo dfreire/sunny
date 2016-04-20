@@ -1,30 +1,11 @@
 package model
 
-func CustomerRoles() []string {
-	return []string{
-		"sommelier",
-		"restaurant",
-		"Wine_distribution",
-		"Wine_shop",
-		"Wine_lover",
-		"other",
-	}
-}
-
-func IsCustomerRole(role string) bool {
-	for _, r := range CustomerRoles() {
-		if r == role {
-			return true
-		}
-	}
-	return false
-}
-
 type Customer struct {
-	Id        string `json:"id,omitempty"`
-	Email     string `json:"email,omitempty"`
-	Role      string `json:"role,omitempty"`
-	CreatedAt string `json:"createdAt,omitempty"`
+	Id             string `json:"id,omitempty"`
+	Email          string `json:"email,omitempty"`
+	RoleId         string `json:"roleId,omitempty"`
+	CreatedAt      string `json:"createdAt,omitempty"`
+	SignupOriginId string `json:"signupOriginId,omitempty"`
 }
 
 type WineComment struct {

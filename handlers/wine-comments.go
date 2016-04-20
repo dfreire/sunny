@@ -21,8 +21,6 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 
 	db := c.Get(middleware.DB).(*sql.DB)
 
-	comments := []model.WineComment{}
-
 	rows, err := squirrel.
 		Select("id", "wineId", "wineYear", "comment").
 		From("WineComment").
@@ -36,22 +34,28 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 		return err
 	}
 
+	comments := []model.WineComment{}
 	for rows.Next() {
-		var c model.WineComment
-		rows.Scan(&c.Id, &c.WineId, &c.WineYear, &c.Comment)
-		comments = append(comments, c)
+		var comment model.WineComment
+		err = rows.Scan(&comment.Id, &comment.WineId, &comment.WineYear, &comment.Comment)
+		if err != nil {
+			log.Printf("error: %+v", err)
+			c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+			return err
+		}
+		comments = append(comments, comment)
 	}
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
 }
 
-// http POST http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" role="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
+// http POST http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" roleId="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
 func SignupCustomerWithWineComment(c echo.Context) error {
 	log.Println("SignupCustomerWithWineComment")
 
 	var reqData struct {
 		Email        string `json:"email"`
-		Role         string `json:"role"`
+		RoleId       string `json:"roleId"`
 		WineComments []struct {
 			WineId   string `json:"wineId"`
 			WineYear int    `json:"wineYear"`
@@ -72,10 +76,11 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 			"email": reqData.Email,
 		},
 		crud.Record{
-			"createdAt": now,
+			"createdAt":      now,
+			"signupOriginId": "wine_comment",
 		},
 		crud.Record{
-			"role": reqData.Role,
+			"roleId": reqData.RoleId,
 		},
 	)
 	if err != nil {
@@ -111,13 +116,13 @@ func SignupCustomerWithWineComment(c echo.Context) error {
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
 }
 
-// http POST http://localhost:3500/signup-customer-with-newsletter email="dario.freire@gmail.com" role="wine_lover"
+// http POST http://localhost:3500/signup-customer-with-newsletter email="dario.freire@gmail.com" roleId="wine_lover"
 func SignupCustomerWithNewsletter(c echo.Context) error {
 	log.Println("SignupCustomerWithNewsletter")
 
 	var reqData struct {
-		Email string `json:"email"`
-		Role  string `json:"role"`
+		Email  string `json:"email"`
+		RoleId string `json:"roleId"`
 	}
 
 	c.Bind(&reqData)
@@ -133,10 +138,11 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 			"email": reqData.Email,
 		},
 		crud.Record{
-			"createdAt": now,
+			"createdAt":      now,
+			"signupOriginId": "newsletter",
 		},
 		crud.Record{
-			"role": reqData.Role,
+			"roleId": reqData.RoleId,
 		},
 	)
 	if err != nil {

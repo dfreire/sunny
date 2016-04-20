@@ -40,16 +40,16 @@ func main() {
 	e.Use(echomiddleware.Gzip())
 	e.Use(echomiddleware.Recover())
 	e.Use(echomiddleware.Logger())
-	e.SetDebug(true)
 
+	logErr := middleware.LogErr()
 	withDB := middleware.WithDB(db)
 	withTX := middleware.WithTX(db)
 
 	// e.SetDebug(true)
 
-	e.Get("/wine-comments/by-customer-id", handlers.GetWineCommentsByCustomerId, withDB)
-	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, withTX)
-	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, withTX)
+	e.Get("/wine-comments/by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB)
+	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, logErr, withTX)
+	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, logErr, withTX)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")
