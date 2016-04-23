@@ -54,6 +54,7 @@ func main() {
 	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, logErr, withTX)
 	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, logErr, withTX)
 
+	e.Get("/customer/wine-comments", handlers.SignupCustomerWithWineComment, logErr, withTX)
 	e.Post("/customer/add-wine-comments", handlers.SignupCustomerWithWineComment, logErr, withTX)
 	e.Post("/customer/register-to-newsletter", handlers.SignupCustomerWithNewsletter, logErr, withTX)
 
