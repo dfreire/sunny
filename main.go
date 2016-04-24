@@ -50,13 +50,9 @@ func main() {
 	withDB := middleware.WithDB(db)
 	withTX := middleware.WithTX(db)
 
-	e.Get("/wine-comments/by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB)
-	e.Post("/signup-customer-with-wine-comment", handlers.SignupCustomerWithWineComment, logErr, withTX)
+	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB)
+	e.Post("/signup-customer-with-wine-comments", handlers.SignupCustomerWithWineComments, logErr, withTX)
 	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, logErr, withTX)
-
-	e.Get("/customer/wine-comments", handlers.SignupCustomerWithWineComment, logErr, withTX)
-	e.Post("/customer/add-wine-comments", handlers.SignupCustomerWithWineComment, logErr, withTX)
-	e.Post("/customer/register-to-newsletter", handlers.SignupCustomerWithNewsletter, logErr, withTX)
 
 	// userService := user.NewService(userCollection, jwtKey)
 	// userGroup := e.Group("/user")

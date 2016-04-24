@@ -10,8 +10,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-// http POST http://localhost:3500/signup-customer-with-wine-comment email="dario.freire@gmail.com" roleId="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
-func SignupCustomerWithWineComment(c echo.Context) error {
+// http POST http://localhost:3500/signup-customer-with-wine-comments email="dario.freire@gmail.com" roleId="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
+func SignupCustomerWithWineComments(c echo.Context) error {
 	var reqData struct {
 		Email        string `json:"email"`
 		RoleId       string `json:"roleId"`

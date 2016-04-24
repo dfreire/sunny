@@ -11,7 +11,7 @@ import (
 	"gopkg.in/Masterminds/squirrel.v1"
 )
 
-// http http://localhost:3500/wine-comments/by-customer-id?customerId=customer-1
+// http http://localhost:3500/get-wine-comments-by-customer-id?customerId=customer-1
 func GetWineCommentsByCustomerId(c echo.Context) error {
 	customerId := c.QueryParam("customerId")
 
