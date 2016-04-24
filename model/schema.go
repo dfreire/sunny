@@ -14,7 +14,7 @@ const SCHEMA = `
 		id TEXT PRIMARY KEY
 	);
 	INSERT OR IGNORE INTO SignupOriginEnum(id) VALUES
-		('wine_comment'), ('newsletter'), ('hoho');
+		('wine_comment'), ('newsletter');
 	
     CREATE TABLE IF NOT EXISTS Customer (
     	id             TEXT PRIMARY KEY,
