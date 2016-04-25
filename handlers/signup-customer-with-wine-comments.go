@@ -3,10 +3,9 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
-	"github.com/dfreire/sunny/crud"
 	"github.com/dfreire/sunny/middleware"
+	"github.com/dfreire/sunny/model"
 	"github.com/labstack/echo"
 )
 
@@ -14,70 +13,14 @@ import (
 func SignupCustomerWithWineComments(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*sql.Tx)
 
-	var reqData requestDataSignupCustomerWithWineComments
+	var reqData model.SignupCustomerWithWineCommentsRequestData
 	c.Bind(&reqData)
 
-	err := signupCustomerWithWineComments(tx, reqData)
+	err := model.SignupCustomerWithWineComments(tx, reqData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err
 	}
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
-}
-
-type requestDataSignupCustomerWithWineComments struct {
-	Email        string `json:"email"`
-	RoleId       string `json:"roleId"`
-	WineComments []struct {
-		WineId   string `json:"wineId"`
-		WineYear int    `json:"wineYear"`
-		Comment  string `json:"comment"`
-	} `json:"wineComments"`
-}
-
-func signupCustomerWithWineComments(tx *sql.Tx, reqData requestDataSignupCustomerWithWineComments) error {
-	now := time.Now().Format(time.RFC3339)
-
-	customerId, err := crud.Upsert(
-		tx,
-		"Customer",
-		crud.Record{
-			"email": reqData.Email,
-		},
-		crud.Record{
-			"createdAt":      now,
-			"signupOriginId": "wine_comment",
-		},
-		crud.Record{
-			"roleId": reqData.RoleId,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	for _, comment := range reqData.WineComments {
-		_, err = crud.Upsert(
-			tx,
-			"WineComment",
-			crud.Record{
-				"customerId": customerId,
-				"wineId":     comment.WineId,
-				"wineYear":   comment.WineYear,
-			},
-			crud.Record{
-				"createdAt": now,
-			},
-			crud.Record{
-				"updatedAt": now,
-				"comment":   comment.Comment,
-			},
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

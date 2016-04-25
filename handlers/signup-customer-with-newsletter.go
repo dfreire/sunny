@@ -3,10 +3,9 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
-	"github.com/dfreire/sunny/crud"
 	"github.com/dfreire/sunny/middleware"
+	"github.com/dfreire/sunny/model"
 	"github.com/labstack/echo"
 )
 
@@ -14,43 +13,14 @@ import (
 func SignupCustomerWithNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*sql.Tx)
 
-	var reqData requestDataSignupCustomerWithNewsletter
+	var reqData model.SignupCustomerWithNewsletterRequestData
 	c.Bind(&reqData)
 
-	err := signupCustomerWithNewsletter(tx, reqData)
+	err := model.SignupCustomerWithNewsletter(tx, reqData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err
 	}
 
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
-}
-
-type requestDataSignupCustomerWithNewsletter struct {
-	Email  string `json:"email"`
-	RoleId string `json:"roleId"`
-}
-
-func signupCustomerWithNewsletter(tx *sql.Tx, reqData requestDataSignupCustomerWithNewsletter) error {
-	now := time.Now().Format(time.RFC3339)
-
-	_, err := crud.Upsert(
-		tx,
-		"Customer",
-		crud.Record{
-			"email": reqData.Email,
-		},
-		crud.Record{
-			"createdAt":      now,
-			"signupOriginId": "newsletter",
-		},
-		crud.Record{
-			"roleId": reqData.RoleId,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
