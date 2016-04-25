@@ -17,7 +17,8 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 	customerId := c.QueryParam("customerId")
 	comments, err := getWineCommentsByCustomerId(db, customerId)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
 	}
 	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
 }
