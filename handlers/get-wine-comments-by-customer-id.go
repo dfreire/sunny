@@ -13,10 +13,16 @@ import (
 
 // http http://localhost:3500/get-wine-comments-by-customer-id?customerId=customer-1
 func GetWineCommentsByCustomerId(c echo.Context) error {
-	customerId := c.QueryParam("customerId")
-
 	db := c.Get(middleware.DB).(*sql.DB)
+	customerId := c.QueryParam("customerId")
+	comments, err := getWineCommentsByCustomerId(db, customerId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+	}
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
+}
 
+func getWineCommentsByCustomerId(db *sql.DB, customerId string) ([]model.WineComment, error) {
 	rows, err := squirrel.
 		Select("id", "wineId", "wineYear", "comment").
 		From("WineComment").
@@ -26,8 +32,7 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 		RunWith(db).Query()
 	if err != nil {
 		log.Printf("error: %+v", err)
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
-		return err
+		return nil, err
 	}
 
 	comments := []model.WineComment{}
@@ -36,11 +41,10 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 		err = rows.Scan(&comment.Id, &comment.WineId, &comment.WineYear, &comment.Comment)
 		if err != nil {
 			log.Printf("error: %+v", err)
-			c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
-			return err
+			return nil, err
 		}
 		comments = append(comments, comment)
 	}
 
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
+	return comments, nil
 }

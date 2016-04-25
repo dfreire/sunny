@@ -12,16 +12,27 @@ import (
 
 // http POST http://localhost:3500/signup-customer-with-newsletter email="dario.freire@gmail.com" roleId="wine_lover"
 func SignupCustomerWithNewsletter(c echo.Context) error {
-	var reqData struct {
-		Email  string `json:"email"`
-		RoleId string `json:"roleId"`
-	}
+	tx := c.Get(middleware.TX).(*sql.Tx)
 
+	var reqData requestDataSignupCustomerWithNewsletter
 	c.Bind(&reqData)
 
-	now := time.Now().Format(time.RFC3339)
+	err := signupCustomerWithNewsletter(tx, reqData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
+	}
 
-	tx := c.Get(middleware.TX).(*sql.Tx)
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+}
+
+type requestDataSignupCustomerWithNewsletter struct {
+	Email  string `json:"email"`
+	RoleId string `json:"roleId"`
+}
+
+func signupCustomerWithNewsletter(tx *sql.Tx, reqData requestDataSignupCustomerWithNewsletter) error {
+	now := time.Now().Format(time.RFC3339)
 
 	_, err := crud.Upsert(
 		tx,
@@ -38,9 +49,8 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 		},
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err
 	}
 
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+	return nil
 }

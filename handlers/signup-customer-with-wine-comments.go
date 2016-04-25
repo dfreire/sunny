@@ -12,21 +12,32 @@ import (
 
 // http POST http://localhost:3500/signup-customer-with-wine-comments email="dario.freire@gmail.com" roleId="wine_lover" wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
 func SignupCustomerWithWineComments(c echo.Context) error {
-	var reqData struct {
-		Email        string `json:"email"`
-		RoleId       string `json:"roleId"`
-		WineComments []struct {
-			WineId   string `json:"wineId"`
-			WineYear int    `json:"wineYear"`
-			Comment  string `json:"comment"`
-		} `json:"wineComments"`
-	}
+	tx := c.Get(middleware.TX).(*sql.Tx)
 
+	var reqData requestDataSignupCustomerWithWineComments
 	c.Bind(&reqData)
 
-	now := time.Now().Format(time.RFC3339)
+	err := signupCustomerWithWineComments(tx, reqData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
+	}
 
-	tx := c.Get(middleware.TX).(*sql.Tx)
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+}
+
+type requestDataSignupCustomerWithWineComments struct {
+	Email        string `json:"email"`
+	RoleId       string `json:"roleId"`
+	WineComments []struct {
+		WineId   string `json:"wineId"`
+		WineYear int    `json:"wineYear"`
+		Comment  string `json:"comment"`
+	} `json:"wineComments"`
+}
+
+func signupCustomerWithWineComments(tx *sql.Tx, reqData requestDataSignupCustomerWithWineComments) error {
+	now := time.Now().Format(time.RFC3339)
 
 	customerId, err := crud.Upsert(
 		tx,
@@ -43,7 +54,6 @@ func SignupCustomerWithWineComments(c echo.Context) error {
 		},
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err
 	}
 
@@ -65,10 +75,9 @@ func SignupCustomerWithWineComments(c echo.Context) error {
 			},
 		)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 			return err
 		}
 	}
 
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+	return nil
 }
