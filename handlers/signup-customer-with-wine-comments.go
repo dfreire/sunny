@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dfreire/sunny/middleware"
-	"github.com/dfreire/sunny/model"
+	"github.com/dfreire/sunny/model/commands"
 	"github.com/labstack/echo"
 )
 
@@ -13,10 +13,10 @@ import (
 func SignupCustomerWithWineComments(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*sql.Tx)
 
-	var reqData model.SignupCustomerWithWineCommentsRequestData
+	var reqData commands.SignupCustomerWithWineCommentsRequestData
 	c.Bind(&reqData)
 
-	err := model.SignupCustomerWithWineComments(tx, reqData)
+	err := commands.SignupCustomerWithWineComments(tx, reqData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err

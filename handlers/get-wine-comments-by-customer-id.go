@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dfreire/sunny/middleware"
-	"github.com/dfreire/sunny/model"
+	"github.com/dfreire/sunny/model/queries"
 	"github.com/labstack/echo"
 )
 
@@ -13,7 +13,7 @@ import (
 func GetWineCommentsByCustomerId(c echo.Context) error {
 	db := c.Get(middleware.DB).(*sql.DB)
 	customerId := c.QueryParam("customerId")
-	comments, err := model.GetWineCommentsByCustomerId(db, customerId)
+	comments, err := queries.GetWineCommentsByCustomerId(db, customerId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err

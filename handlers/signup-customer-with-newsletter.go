@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dfreire/sunny/middleware"
-	"github.com/dfreire/sunny/model"
+	"github.com/dfreire/sunny/model/commands"
 	"github.com/labstack/echo"
 )
 
@@ -13,10 +13,10 @@ import (
 func SignupCustomerWithNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*sql.Tx)
 
-	var reqData model.SignupCustomerWithNewsletterRequestData
+	var reqData commands.SignupCustomerWithNewsletterRequestData
 	c.Bind(&reqData)
 
-	err := model.SignupCustomerWithNewsletter(tx, reqData)
+	err := commands.SignupCustomerWithNewsletter(tx, reqData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err
