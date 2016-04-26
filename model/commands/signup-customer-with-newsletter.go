@@ -24,6 +24,7 @@ func SignupCustomerWithNewsletter(tx *sql.Tx, reqData SignupCustomerWithNewslett
 		crud.Record{
 			"createdAt":      now,
 			"signupOriginId": "newsletter",
+			"inMailingList":  false,
 		},
 		crud.Record{
 			"roleId": reqData.RoleId,

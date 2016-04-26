@@ -29,6 +29,7 @@ func SignupCustomerWithWineComments(tx *sql.Tx, reqData SignupCustomerWithWineCo
 		crud.Record{
 			"createdAt":      now,
 			"signupOriginId": "wine_comment",
+			"inMailingList":  false,
 		},
 		crud.Record{
 			"roleId": reqData.RoleId,

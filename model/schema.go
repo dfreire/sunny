@@ -22,6 +22,7 @@ const SCHEMA = `
     	roleId         TEXT NOT NULL,
     	createdAt      TEXT NOT NULL,
 		signupOriginId TEXT NOT NULL,
+		inMailingList  BOOL NOT NULL,
 		
 		FOREIGN KEY (roleId) REFERENCES CustomerRoleEnum(id),
 		FOREIGN KEY (signupOriginId) REFERENCES SignupOriginEnum(id)

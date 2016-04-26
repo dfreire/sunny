@@ -6,6 +6,7 @@ type Customer struct {
 	RoleId         string `json:"roleId,omitempty"`
 	CreatedAt      string `json:"createdAt,omitempty"`
 	SignupOriginId string `json:"signupOriginId,omitempty"`
+	InMailingList  bool   `json:"inMailingList,omitempty"`
 }
 
 type WineComment struct {
