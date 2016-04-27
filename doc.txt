@@ -23,16 +23,16 @@ Using [httpie](https://github.com/jkbrzt/httpie) syntax.
     "ok": true,
     "data": [
         {
-            "comment": "fantastic", 
-            "id": "5720aa515a1d182a10000003", 
-            "wineId": "wine-1", 
-            "wineYear": 2014
-        }, 
-        {
-            "comment": "great", 
             "id": "5720aa515a1d182a10000002", 
             "wineId": "wine-1", 
-            "wineYear": 2015
+            "wineYear": 2015,
+            "comment": "great"
+        }, 
+        {
+            "id": "5720aa515a1d182a10000003", 
+            "wineId": "wine-1", 
+            "wineYear": 2014,
+            "comment": "fantastic"
         }
     ]
 }
