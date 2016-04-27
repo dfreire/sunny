@@ -9,11 +9,11 @@ import (
 	"github.com/labstack/echo"
 )
 
-// http http://localhost:3500/get-wine-comments-by-customer-id?customerId=customer-1
-func GetWineCommentsByCustomerId(c echo.Context) error {
+// http http://localhost:3500/get-customers
+func GetCustomers(c echo.Context) error {
 	db := c.Get(middleware.DB).(*sql.DB)
-	customerId := c.QueryParam("customerId")
-	data, err := queries.GetWineCommentsByCustomerId(db, customerId)
+
+	data, err := queries.GetCustomers(db)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err

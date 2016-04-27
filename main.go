@@ -52,7 +52,10 @@ func main() {
 
 	e.Get("/doc", handlers.GetDoc, logErr)
 
+	e.Get("/get-customers", handlers.GetCustomers, logErr, withDB)
+	e.Post("/get-customers", handlers.GetCustomers, logErr, withDB) // TODO remove
 	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB)
+	e.POST("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB) // TODO remove
 	e.Post("/signup-customer-with-wine-comments", handlers.SignupCustomerWithWineComments, logErr, withTX)
 	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, logErr, withTX)
 

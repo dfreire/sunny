@@ -17,6 +17,20 @@ Using [httpie](https://github.com/jkbrzt/httpie) syntax.
 }
 ```
 
+## GET /get-customers
+```
+{
+    "ok": true,
+    "data": [{
+        "id": "5720aa515a1d182a10000001",
+        "email": "dario.freire@gmail.com",
+        "roleId": "wine_lover",
+        "createdAt": "2016-04-27T13:02:25+01:00",
+        "signupOriginId": "wine_comment"
+    }]
+}
+```
+
 ## GET /get-wine-comments-by-customer-id?customerId=5720aa515a1d182a10000001
 ```
 {
