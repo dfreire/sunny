@@ -1,8 +1,5 @@
 **.swp
 **.DS_Store
 .vscode/
-dist/
 vendor/
-run-prod.sh
-sunny-development.db
-sunny-production.db
+development.db

@@ -27,9 +27,9 @@ func init() {
 }
 
 func main() {
-	env := viper.Get("SUNNY_ENV").(string)
+	env := viper.Get("ENV").(string)
 
-	db, err := sql.Open("sqlite3", viper.Get("SUNNY_SQLITE_DB").(string))
+	db, err := sql.Open("sqlite3", viper.Get("SQLITE_DB").(string))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,7 +86,7 @@ func main() {
 	// adminGroup.Delete("/remove-unconfirmed-users", adminService.RemoveUnconfirmedUsers)
 	// adminGroup.Post("/remove-expired-reset-keys", adminService.RemoveExpiredResetKeys)
 
-	port := viper.Get("SUNNY_PORT").(string)
+	port := viper.Get("PORT").(string)
 	log.Printf("Running on port %s", port)
 	e.Run(standard.New(port))
 }
