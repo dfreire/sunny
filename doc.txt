@@ -1,0 +1,39 @@
+# API v1
+
+Using [httpie](https://github.com/jkbrzt/httpie) syntax.
+
+## POST /signup-customer-with-newsletter email="joe.doe@example.com" roleId="wine_lover"
+```
+{
+    "ok": true
+}
+```
+
+## POST /signup-customer-with-wine-comments email="joe.doe@example.com" roleId="wine_lover" \
+    wineComments:='[{"wineId": "wine-1", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineYear": 2014, "comment": "fantastic"}]'
+```
+{
+    "ok": true
+}
+```
+
+## GET /get-wine-comments-by-customer-id?customerId=5720aa515a1d182a10000001
+```
+{
+    "ok": true,
+    "data": [
+        {
+            "comment": "fantastic", 
+            "id": "5720aa515a1d182a10000003", 
+            "wineId": "wine-1", 
+            "wineYear": 2014
+        }, 
+        {
+            "comment": "great", 
+            "id": "5720aa515a1d182a10000002", 
+            "wineId": "wine-1", 
+            "wineYear": 2015
+        }
+    ]
+}
+```
