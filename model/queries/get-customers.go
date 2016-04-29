@@ -2,36 +2,21 @@ package queries
 
 import (
 	"database/sql"
-	"log"
 
-	"github.com/dfreire/sunny/model"
-
-	"gopkg.in/Masterminds/squirrel.v1"
+	"github.com/dfreire/sunny/crud"
+	"github.com/jmoiron/sqlx"
 )
 
-func GetCustomers(db *sql.DB) ([]model.Customer, error) {
-	rows, err := squirrel.
-		Select("id", "name", "email", "roleId", "createdAt", "signupOriginId", "inMailingList").
-		From("Customer").
-		RunWith(db).Query()
-	if err != nil {
-		log.Printf("error: %+v", err)
-		return nil, err
-	}
+func GetCustomers(db *sql.DB, dbx *sqlx.DB) ([]crud.Record, error) {
 
-	customers := []model.Customer{}
-	for rows.Next() {
-		var customer model.Customer
-		err = rows.Scan(
-			&customer.Id, &customer.Name, &customer.Email, &customer.RoleId,
-			&customer.CreatedAt, &customer.SignupOriginId, &customer.InMailingList,
-		)
-		if err != nil {
-			log.Printf("error: %+v", err)
-			return nil, err
-		}
-		customers = append(customers, customer)
-	}
+	recordDefinition := make(map[string]string)
+	recordDefinition["id"] = "string"
+	recordDefinition["name"] = "string"
+	recordDefinition["email"] = "string"
+	recordDefinition["roleId"] = "string"
+	recordDefinition["createdAt"] = "string"
+	recordDefinition["signupOriginId"] = "string"
+	recordDefinition["inMailingList"] = "bool"
 
-	return customers, nil
+	return crud.Get(db, "Customer", recordDefinition)
 }

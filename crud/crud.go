@@ -4,11 +4,55 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/guregu/null"
+
 	"gopkg.in/Masterminds/squirrel.v1"
 	"labix.org/v2/mgo/bson"
 )
 
 type Record map[string]interface{}
+
+func Get(db *sql.DB, tableName string, recordDefinition map[string]string) ([]Record, error) {
+	keys := []string{}
+	for k, _ := range recordDefinition {
+		keys = append(keys, k)
+	}
+
+	rows, err := squirrel.
+		Select(keys...).
+		From(tableName).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+
+	createScanResult := func() (Record, []interface{}) {
+		result := make(map[string]interface{})
+		var values []interface{}
+		for _, k := range keys {
+			switch recordDefinition[k] {
+			case "string":
+				result[k] = &null.String{}
+			case "bool":
+				result[k] = &null.Bool{}
+			}
+			values = append(values, result[k])
+		}
+		return result, values
+	}
+
+	var records []Record
+
+	for rows.Next() {
+		record, values := createScanResult()
+		err = rows.Scan(values...)
+		if err != nil {
+			return nil, err
+		}
+		records = append(records, record)
+	}
+	return records, nil
+}
 
 func Create(tx *sql.Tx, tableName string, record Record) error {
 	record["id"] = bson.NewObjectId().Hex()

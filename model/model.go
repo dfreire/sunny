@@ -1,16 +1,14 @@
 package model
 
-import "github.com/guregu/null"
-
-type Customer struct {
-	Id             string      `json:"id,omitempty"`
-	Name           null.String `json:"name,omitempty"`
-	Email          string      `json:"email,omitempty"`
-	RoleId         string      `json:"roleId,omitempty"`
-	CreatedAt      string      `json:"createdAt,omitempty"`
-	SignupOriginId string      `json:"signupOriginId,omitempty"`
-	InMailingList  bool        `json:"inMailingList"`
-}
+// type Customer struct {
+// 	Id             string      `json:"id,omitempty",dbx:"id"`
+// 	Name           null.String `json:"name,omitempty",dbx:"name"`
+// 	Email          string      `json:"email,omitempty",dbx:"email"`
+// 	RoleId         string      `json:"roleId,omitempty",dbx:"roleId"`
+// 	CreatedAt      string      `json:"createdAt,omitempty",dbx:"createdAt"`
+// 	SignupOriginId string      `json:"signupOriginId,omitempty",dbx:"signupOriginId"`
+// 	InMailingList  bool        `json:"inMailingList",dbx:"inMailingList"`
+// }
 
 type WineComment struct {
 	Id         string `json:"id,omitempty"`

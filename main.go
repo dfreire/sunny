@@ -6,6 +6,7 @@ import (
 
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/model"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	echomiddleware "github.com/labstack/echo/middleware"
@@ -34,6 +35,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	dbx := sqlx.NewDb(db, "sqlite3")
+
 	if _, err := db.Exec(model.SCHEMA); err != nil {
 		log.Fatal(err)
 	}
@@ -48,11 +51,12 @@ func main() {
 
 	logErr := middleware.LogErr()
 	withDB := middleware.WithDB(db)
+	withDBX := middleware.WithDBX(dbx)
 	withTX := middleware.WithTX(db)
 
 	e.Get("/doc", handlers.GetDoc, logErr)
 
-	e.Get("/get-customers", handlers.GetCustomers, logErr, withDB)
+	e.Get("/get-customers", handlers.GetCustomers, logErr, withDB, withDBX)
 	e.Post("/get-customers", handlers.GetCustomers, logErr, withDB) // TODO remove
 	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB)
 	e.POST("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, logErr, withDB) // TODO remove
