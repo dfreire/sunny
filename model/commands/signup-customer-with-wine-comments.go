@@ -8,6 +8,7 @@ import (
 )
 
 type SignupCustomerWithWineCommentsRequestData struct {
+	Name         string `json:"name,omitempty"`
 	Email        string `json:"email"`
 	RoleId       string `json:"roleId"`
 	WineComments []struct {
@@ -32,6 +33,7 @@ func SignupCustomerWithWineComments(tx *sql.Tx, reqData SignupCustomerWithWineCo
 			"inMailingList":  false,
 		},
 		crud.Record{
+			"name":   reqData.Name,
 			"roleId": reqData.RoleId,
 		},
 	)

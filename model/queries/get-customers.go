@@ -11,7 +11,7 @@ import (
 
 func GetCustomers(db *sql.DB) ([]model.Customer, error) {
 	rows, err := squirrel.
-		Select("id", "email", "roleId", "createdAt", "signupOriginId", "inMailingList").
+		Select("id", "name", "email", "roleId", "createdAt", "signupOriginId", "inMailingList").
 		From("Customer").
 		RunWith(db).Query()
 	if err != nil {
@@ -23,7 +23,7 @@ func GetCustomers(db *sql.DB) ([]model.Customer, error) {
 	for rows.Next() {
 		var customer model.Customer
 		err = rows.Scan(
-			&customer.Id, &customer.Email, &customer.RoleId,
+			&customer.Id, &customer.Name, &customer.Email, &customer.RoleId,
 			&customer.CreatedAt, &customer.SignupOriginId, &customer.InMailingList,
 		)
 		if err != nil {

@@ -8,6 +8,7 @@ import (
 )
 
 type SignupCustomerWithNewsletterRequestData struct {
+	Name   string `json:"name,omitempty"`
 	Email  string `json:"email"`
 	RoleId string `json:"roleId"`
 }
@@ -27,6 +28,7 @@ func SignupCustomerWithNewsletter(tx *sql.Tx, reqData SignupCustomerWithNewslett
 			"inMailingList":  false,
 		},
 		crud.Record{
+			"name":   reqData.Name,
 			"roleId": reqData.RoleId,
 		},
 	)

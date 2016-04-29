@@ -18,6 +18,7 @@ const SCHEMA = `
 	
     CREATE TABLE IF NOT EXISTS Customer (
     	id             TEXT PRIMARY KEY,
+		name           TEXT,
     	email          TEXT NOT NULL,
     	roleId         TEXT NOT NULL,
     	createdAt      TEXT NOT NULL,
