@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/fatih/structs"
 	"github.com/guregu/null"
 
 	"gopkg.in/Masterminds/squirrel.v1"
@@ -12,11 +13,19 @@ import (
 
 type Record map[string]interface{}
 
-func Get(db *sql.DB, tableName string, recordDefinition map[string]string) ([]Record, error) {
-	keys := []string{}
-	for k, _ := range recordDefinition {
-		keys = append(keys, k)
+func Get2(db *sql.DB, definition interface{}) ([]Record, error) {
+	recordDefinition := make(map[string]string)
+
+	s := structs.New(definition)
+	for _, field := range s.Fields() {
+		recordDefinition[field.Name()] = field.Kind().String()
 	}
+
+	return Get(db, s.Name(), recordDefinition)
+}
+
+func Get(db *sql.DB, tableName string, recordDefinition map[string]string) ([]Record, error) {
+	keys := getKeysFromDefinition(recordDefinition)
 
 	rows, err := squirrel.
 		Select(keys...).
@@ -26,25 +35,41 @@ func Get(db *sql.DB, tableName string, recordDefinition map[string]string) ([]Re
 		return nil, err
 	}
 
-	createScanResult := func() (Record, []interface{}) {
-		result := make(map[string]interface{})
-		var values []interface{}
-		for _, k := range keys {
-			switch recordDefinition[k] {
-			case "string":
-				result[k] = &null.String{}
-			case "bool":
-				result[k] = &null.Bool{}
-			}
-			values = append(values, result[k])
+	var records []Record
+
+	for rows.Next() {
+		record, values := getRecordAndValuesFromDefinition(keys, recordDefinition)
+		err = rows.Scan(values...)
+		if err != nil {
+			return nil, err
 		}
-		return result, values
+		records = append(records, record)
+	}
+	return records, nil
+}
+
+func GetById(db *sql.DB, tableName string, recordDefinition map[string]string, id string) ([]Record, error) {
+	return GetByIds(db, tableName, recordDefinition, []string{id})
+}
+
+func GetByIds(db *sql.DB, tableName string, recordDefinition map[string]string, ids []string) ([]Record, error) {
+	keys := getKeysFromDefinition(recordDefinition)
+
+	rows, err := squirrel.
+		Select(keys...).
+		From(tableName).
+		Where(squirrel.Eq{
+			"id": ids,
+		}).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
 	}
 
 	var records []Record
 
 	for rows.Next() {
-		record, values := createScanResult()
+		record, values := getRecordAndValuesFromDefinition(keys, recordDefinition)
 		err = rows.Scan(values...)
 		if err != nil {
 			return nil, err
@@ -63,7 +88,11 @@ func Create(tx *sql.Tx, tableName string, record Record) error {
 		RunWith(tx).Exec())
 }
 
-func Update(tx *sql.Tx, tableName string, record Record, ids []string) error {
+func UpdateById(tx *sql.Tx, tableName string, record Record, id string) error {
+	return UpdateByIds(tx, tableName, record, []string{id})
+}
+
+func UpdateByIds(tx *sql.Tx, tableName string, record Record, ids []string) error {
 	return sqlResult(squirrel.
 		Update(tableName).
 		SetMap(record).
@@ -73,7 +102,11 @@ func Update(tx *sql.Tx, tableName string, record Record, ids []string) error {
 		RunWith(tx).Exec())
 }
 
-func Delete(tx *sql.Tx, tableName string, ids []string) error {
+func DeleteById(tx *sql.Tx, tableName string, id string) error {
+	return DeleteByIds(tx, tableName, []string{id})
+}
+
+func DeleteByIds(tx *sql.Tx, tableName string, ids []string) error {
 	return sqlResult(squirrel.
 		Delete(tableName).
 		Where(squirrel.Eq{
@@ -101,7 +134,7 @@ func Upsert(tx *sql.Tx, tableName string, recordToFind Record, recordToInsert Re
 		err = Create(tx, tableName, recordToInsert)
 		id = RecordId(recordToInsert)
 	} else {
-		err = Update(tx, tableName, recordToUpdate, []string{id})
+		err = UpdateById(tx, tableName, recordToUpdate, id)
 	}
 
 	return
@@ -110,6 +143,27 @@ func Upsert(tx *sql.Tx, tableName string, recordToFind Record, recordToInsert Re
 func RecordId(record Record) (id string) {
 	if record["id"] != nil {
 		id = record["id"].(string)
+	}
+	return
+}
+
+func getKeysFromDefinition(recordDefinition map[string]string) (keys []string) {
+	for k, _ := range recordDefinition {
+		keys = append(keys, k)
+	}
+	return
+}
+
+func getRecordAndValuesFromDefinition(keys []string, recordDefinition map[string]string) (record Record, values []interface{}) {
+	record = make(Record)
+	for _, k := range keys {
+		switch recordDefinition[k] {
+		case "string":
+			record[k] = &null.String{}
+		case "bool":
+			record[k] = &null.Bool{}
+		}
+		values = append(values, record[k])
 	}
 	return
 }
