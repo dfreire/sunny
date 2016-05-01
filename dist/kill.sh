@@ -1,3 +1,2 @@
 #!/bin/bash
-HERE=`cd -P $(dirname $0) && pwd`
-echo $($HERE/show-process.sh)
+kill $(ps -aux | grep "sunny" | grep -v "grep" | awk '{ print $2 }')

@@ -29,10 +29,11 @@ func init() {
 }
 
 func main() {
-	env := viper.Get("ENV").(string)
+	// env := viper.Get("ENV").(string)
 	appToken := viper.Get("appToken").(string)
 	database := viper.Get("database").(string)
 	port := viper.Get("port").(string)
+	debug := viper.Get("debug").(bool)
 
 	db, err := gorm.Open("sqlite3", database)
 	if err != nil {
@@ -58,7 +59,7 @@ func main() {
 	e.Get("/get-customers", handlers.GetCustomers, withErrorLogging, hasAppToken, withDatabase)
 	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, withErrorLogging, hasAppToken, withDatabase)
 
-	if env == "development" {
+	if debug {
 		db.LogMode(true)
 		e.SetDebug(true)
 	}
