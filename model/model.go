@@ -1,21 +1,39 @@
 package model
 
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
+
+type CustomerRole struct {
+	ID string `gorm:"primary_key" json:"id"`
+}
+
 type Customer struct {
-	Id             string `json:"id,omitempty",dbx:"id"`
-	Name           string `json:"name,omitempty",dbx:"name"`
-	Email          string `json:"email,omitempty",dbx:"email"`
-	RoleId         string `json:"roleId,omitempty",dbx:"roleId"`
-	CreatedAt      string `json:"createdAt,omitempty",dbx:"createdAt"`
-	SignupOriginId string `json:"signupOriginId,omitempty",dbx:"signupOriginId"`
-	InMailingList  bool   `json:"inMailingList",dbx:"inMailingList"`
+	ID              string       `gorm:"primary_key" json:"id"`
+	CreatedAt       time.Time    `json:"createdAt"`
+	UpdatedAt       time.Time    `json:"updatedAt"`
+	Name            string       `json:"name"`
+	Email           string       `json:"email"`
+	Role            CustomerRole `json:"-"`
+	RoleId          string       `json:"roleId"`
+	WantsNewsletter bool         `json:"wantsNewsletter"`
+	InNewsletter    bool         `json:"inNewsletter"`
 }
 
 type WineComment struct {
-	Id         string `json:"id,omitempty"`
-	CustomerId string `json:"customerId,omitempty"`
-	WineId     string `json:"wineId,omitempty"`
-	WineYear   int    `json:"wineYear,omitempty"`
-	CreatedAt  string `json:"createdAt,omitempty"`
-	UpdatedAt  string `json:"updatedAt,omitempty"`
-	Comment    string `json:"comment,omitempty"`
+	ID         string    `gorm:"primary_key" json:"id"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+	Customer   Customer  `json:"-"`
+	CustomerId string    `json:"customerId"`
+	WineId     string    `json:"wineId"`
+	WineYear   int       `json:"wineYear"`
+	Comment    string    `json:"comment"`
+}
+
+func Initialize(db *gorm.DB) {
+	db.SingularTable(true)
+	db.Exec(SCHEMA)
 }

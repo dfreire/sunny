@@ -1,16 +1,20 @@
 package middleware
 
 import (
-	"log"
-
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
-func IsSpecificUser() echo.MiddlewareFunc {
+const (
+	DB = "DB"
+)
+
+func WithDatabase(db *gorm.DB) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
-			log.Println("IsSpecificUser")
-			return next(c)
+			c.Set(DB, db)
+			err = next(c)
+			return err
 		}
 	}
 }

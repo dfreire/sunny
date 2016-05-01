@@ -1,21 +1,21 @@
 package middleware
 
 import (
-	"database/sql"
+	"log"
 
 	"github.com/labstack/echo"
 )
 
-const (
-	DB = "DB"
-)
-
-func WithDB(db *sql.DB) echo.MiddlewareFunc {
+func ErrorLogging() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
-			c.Set(DB, db)
+			log.Println(c.Request().URI())
 			err = next(c)
-			return err
+			if err != nil {
+				log.Printf("Error: %+v", err)
+				return err
+			}
+			return nil
 		}
 	}
 }

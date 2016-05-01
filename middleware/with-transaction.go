@@ -3,18 +3,30 @@ package middleware
 import (
 	"log"
 
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
-func LogErr() echo.MiddlewareFunc {
+const (
+	TX = "TX"
+)
+
+func WithTransaction(db *gorm.DB) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
-			log.Println(c.Request().URI())
+			tx := db.Begin()
+			c.Set(TX, tx)
+
 			err = next(c)
 			if err != nil {
-				log.Printf("error: %+v", err)
+				tx.Rollback()
+				log.Printf("tx.Rollback")
 				return err
 			}
+
+			tx.Commit()
+			log.Printf("tx.Commit")
+
 			return nil
 		}
 	}
