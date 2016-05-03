@@ -9,7 +9,7 @@ import (
 )
 
 type Mailer interface {
-	Send(mail email.Email) error
+	Send(mail *email.Email) error
 }
 
 type mailerImpl struct {
@@ -33,6 +33,6 @@ func NewMailer(host string, port int, email, password string) Mailer {
 	return &mailerImpl{hostAndPort, plainAuth}
 }
 
-func (self *mailerImpl) Send(e email.Email) error {
+func (self *mailerImpl) Send(e *email.Email) error {
 	return e.Send(self.hostAndPort, self.plainAuth)
 }

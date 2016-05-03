@@ -22,7 +22,6 @@ func init() {
 
 	viper.AddConfigPath(".")
 	viper.SetConfigName(strings.Join([]string{"config", env}, "."))
-
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("read config err: %+v", err)
