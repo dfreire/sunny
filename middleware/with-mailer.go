@@ -9,7 +9,7 @@ const (
 	MAILER = "MAILER"
 )
 
-func WithMailer(mailer *mailer.Mailer) echo.MiddlewareFunc {
+func WithMailer(mailer mailer.Mailer) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			c.Set(MAILER, mailer)

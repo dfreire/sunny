@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/dfreire/sunny/commands"
+	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
 	"github.com/jinzhu/gorm"
+	"github.com/jordan-wright/email"
 	"github.com/labstack/echo"
 )
 
@@ -17,6 +19,14 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 	c.Bind(&reqData)
 
 	err := commands.SignupCustomerWithNewsletter(tx, reqData)
+
+	e := email.NewEmail()
+	e.To = []string{reqData.Email}
+	// e.Bcc = mail.Bcc
+	e.Subject = mail.Subject
+	e.HTML = []byte(mail.Body)
+	c.Get(middleware.MAILER).(mailer.Mailer).Send(e)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
 		return err

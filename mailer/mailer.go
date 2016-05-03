@@ -17,7 +17,7 @@ type mailerImpl struct {
 	plainAuth   smtp.Auth
 }
 
-func NewMailer(host string, port int, email, password string) mailerImpl {
+func NewMailer(host string, port int, email, password string) Mailer {
 	hostAndPort := strings.Join([]string{
 		host,
 		strconv.Itoa(port),
@@ -30,9 +30,9 @@ func NewMailer(host string, port int, email, password string) mailerImpl {
 		host,
 	)
 
-	return mailerImpl{hostAndPort, plainAuth}
+	return &mailerImpl{hostAndPort, plainAuth}
 }
 
-func (self mailerImpl) Send(e email.Email) error {
+func (self *mailerImpl) Send(e email.Email) error {
 	return e.Send(self.hostAndPort, self.plainAuth)
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/dfreire/sunny/handlers"
+	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
@@ -34,6 +35,10 @@ func main() {
 	database := viper.Get("database").(string)
 	port := viper.Get("port").(string)
 	debug := viper.Get("debug").(bool)
+	smtpHost := viper.Get("smtp.host").(string)
+	smtpPort := viper.Get("smtp.port").(int)
+	smtpEmail := viper.Get("smtp.email").(string)
+	smtpPassword := viper.Get("smtp.password").(string)
 
 	db, err := gorm.Open("sqlite3", database)
 	if err != nil {
@@ -49,12 +54,13 @@ func main() {
 	e.Use(echomiddleware.Logger())
 
 	hasAppToken := middleware.HasAppToken(appToken)
+	withMailer := middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpEmail, smtpPassword))
 	withDatabase := middleware.WithDatabase(db)
 	withTransaction := middleware.WithTransaction(db)
 	withErrorLogging := middleware.ErrorLogging()
 
-	e.Post("/signup-customer-with-wine-comments", handlers.SignupCustomerWithWineComments, withErrorLogging, withTransaction)
-	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, withErrorLogging, withTransaction)
+	e.Post("/signup-customer-with-wine-comments", handlers.SignupCustomerWithWineComments, withErrorLogging, withTransaction, withMailer)
+	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, withErrorLogging, withTransaction, withMailer)
 
 	e.Get("/get-customers", handlers.GetCustomers, withErrorLogging, hasAppToken, withDatabase)
 	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, withErrorLogging, hasAppToken, withDatabase)
