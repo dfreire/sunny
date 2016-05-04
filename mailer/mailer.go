@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"html/template"
 	"io/ioutil"
-	"log"
 	"net/smtp"
 	"path/filepath"
 	"strconv"
@@ -85,25 +84,19 @@ func (self *mailerImpl) OnSignUpCustomerWithWineComments(reqData commands.Signup
 		return err
 	}
 
-	templateValues := struct {
-		WineComments []commands.WineComment
-	}{reqData.WineComments}
-	rendered, err := RenderTemplate(mt.Body, templateValues)
+	body, err := RenderTemplate(mt.Body, reqData)
 	if err != nil {
 		return err
 	}
-
-	log.Printf("%+v", rendered)
 
 	e := email.NewEmail()
 	e.To = []string{reqData.Email}
 	// e.Bcc = mail.Bcc
 	e.Subject = mt.Subject
-	e.HTML = []byte(mt.Body)
-	//return self.send(e)
-	log.Printf("%+v", mt.Body)
-	log.Printf("%+v", e)
-	return nil
+	e.HTML = []byte(body)
+	return self.send(e)
+	// fmt.Println(body)
+	// return nil
 }
 
 func RenderTemplate(templateString string, templateValues interface{}) (string, error) {

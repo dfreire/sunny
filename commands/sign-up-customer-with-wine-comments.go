@@ -14,6 +14,7 @@ type SignupCustomerWithWineCommentsRequestData struct {
 }
 
 type WineComment struct {
+	WineName string `json:"wineName"`
 	WineId   string `json:"wineId"`
 	WineYear int    `json:"wineYear"`
 	Comment  string `json:"comment"`

@@ -1,12 +1,12 @@
 subject: Prova de Vinhos Quinta de Soalheiro
 body: >
-    {{range $element := .WineComments}}
-        <p><b>{{ $element.WineId }} {{ $element.WineYear }}</b><br/>
-        {{ $element.Comment }}</p>
+    {{range .WineComments}}
+        <p><b>{{ .WineName }}{{ if .WineYear }} {{ .WineYear }}{{ end }}</b><br/>
+        {{ .Comment }}</p>
     {{ end }}
     
     <br/>
-    <p>Aprovitámos esta oportunidade para o subcrever na nossa newsletter.</p>
+    <p>Aproveitámos esta oportunidade para o subscrever na nossa newsletter.</p>
     
     <p>Enviaremos as últimas novidades para o seu endereço de email.</p>
     
