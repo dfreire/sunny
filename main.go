@@ -36,7 +36,8 @@ func main() {
 	debug := viper.Get("debug").(bool)
 	smtpHost := viper.Get("smtp.host").(string)
 	smtpPort := viper.Get("smtp.port").(int)
-	smtpEmail := viper.Get("smtp.email").(string)
+	smtpFrom := viper.Get("smtp.from").(string)
+	smtpLogin := viper.Get("smtp.login").(string)
 	smtpPassword := viper.Get("smtp.password").(string)
 
 	db, err := gorm.Open("sqlite3", database)
@@ -53,7 +54,7 @@ func main() {
 	e.Use(echomiddleware.Logger())
 
 	hasAppToken := middleware.HasAppToken(appToken)
-	withMailer := middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpEmail, smtpPassword))
+	withMailer := middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpFrom, smtpLogin, smtpPassword))
 	withDatabase := middleware.WithDatabase(db)
 	withTransaction := middleware.WithTransaction(db)
 	withErrorLogging := middleware.ErrorLogging()
