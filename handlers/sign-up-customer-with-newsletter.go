@@ -24,7 +24,11 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 		return err
 	}
 
-	c.JSON(http.StatusOK, JsonResponse{Ok: true})
+	err = m.OnSignUpCustomerWithNewsletter(reqData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		return err
+	}
 
-	return m.OnSignUpCustomerWithNewsletter(reqData)
+	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
 }

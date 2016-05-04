@@ -1,10 +1,9 @@
 subject: Prova de Vinhos Quinta de Soalheiro
 body: >
-    <p><b>ALLO (alô) - Alvarinho & Loureiro 2015</b><br/>
-    A fruta da região do Minho com as castas Alvarinho e Loureiro.</p>
-    
-    <p><b>Alvarinho Soalheiro 2015</b><br/>
-    Um clássico. Frescura aromática da casta Alvarinho, intensidade gustativa e invulgar longevidade em garrafa.</p>
+    {{range $element := .WineComments}}
+        <p><b>{{ $element.WineId }} {{ $element.WineYear }}</b><br/>
+        {{ $element.Comment }}</p>
+    {{ end }}
     
     <br/>
     <p>Aprovitámos esta oportunidade para o subcrever na nossa newsletter.</p>

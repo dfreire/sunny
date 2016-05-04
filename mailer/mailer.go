@@ -1,7 +1,10 @@
 package mailer
 
 import (
+	"bytes"
+	"html/template"
 	"io/ioutil"
+	"log"
 	"net/smtp"
 	"path/filepath"
 	"strconv"
@@ -82,10 +85,41 @@ func (self *mailerImpl) OnSignUpCustomerWithWineComments(reqData commands.Signup
 		return err
 	}
 
+	templateValues := struct {
+		WineComments []commands.WineComment
+	}{reqData.WineComments}
+	rendered, err := RenderTemplate(mt.Body, templateValues)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("%+v", rendered)
+
 	e := email.NewEmail()
 	e.To = []string{reqData.Email}
 	// e.Bcc = mail.Bcc
 	e.Subject = mt.Subject
 	e.HTML = []byte(mt.Body)
-	return self.send(e)
+	//return self.send(e)
+	log.Printf("%+v", mt.Body)
+	log.Printf("%+v", e)
+	return nil
+}
+
+func RenderTemplate(templateString string, templateValues interface{}) (string, error) {
+	t, err := template.New("").Parse(strings.Join([]string{
+		"{{define \"T\"}}",
+		templateString,
+		"{{end}}",
+	}, ""))
+	if err != nil {
+		return "", err
+	}
+
+	var out bytes.Buffer
+	if err = t.ExecuteTemplate(&out, "T", templateValues); err != nil {
+		return "", err
+	}
+
+	return out.String(), nil
 }
