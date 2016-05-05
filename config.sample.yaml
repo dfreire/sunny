@@ -8,6 +8,3 @@ smtp:
     port: 587
     login: joe.doe@mg.example.com
     password: bbp1mrl6TJLh
-    from: joe.doe@example.com
-    cc: []
-    bcc: []
