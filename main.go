@@ -51,13 +51,13 @@ func main() {
 	withMailer := createMiddlewareWithMailer()
 	withDatabase := middleware.WithDatabase(db)
 	withTransaction := middleware.WithTransaction(db)
-	withErrorLogging := middleware.ErrorLogging()
+	withLogging := middleware.Logging()
 
-	e.Post("/signup-customer-with-wine-comments", handlers.SignupCustomerWithWineComments, withErrorLogging, withTransaction, withMailer)
-	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, withErrorLogging, withTransaction, withMailer)
+	e.Post("/signup-customer-with-wine-comments", handlers.SignupCustomerWithWineComments, withLogging, withTransaction, withMailer)
+	e.Post("/signup-customer-with-newsletter", handlers.SignupCustomerWithNewsletter, withLogging, withTransaction, withMailer)
 
-	e.Get("/get-customers", handlers.GetCustomers, withErrorLogging, hasAppToken, withDatabase)
-	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, withErrorLogging, hasAppToken, withDatabase)
+	e.Get("/get-customers", handlers.GetCustomers, withLogging, hasAppToken, withDatabase)
+	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, withLogging, hasAppToken, withDatabase)
 
 	if debug {
 		db.LogMode(true)
