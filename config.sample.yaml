@@ -1,10 +1,12 @@
+debug: true
 appToken: 2fe9a70a-46f2-4d00-88f2-6f66ed903426
 database: development.db
 port: :3500
-debug: true
 smtp:
     host: smtp.mailgun.org
     port: 587
-    from: joe.doe@example.com
     login: joe.doe@mg.example.com
     password: bbp1mrl6TJLh
+    from: joe.doe@example.com
+    cc: []
+    bcc: []

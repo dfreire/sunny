@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mailer"
@@ -20,15 +21,17 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 
 	err := commands.SignupCustomerWithNewsletter(tx, reqData)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
 
-	err = m.OnSignUpCustomerWithNewsletter(reqData)
+	to := []string{reqData.Email}
+	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-newsletter-email.yaml")
+	err = sendEmail(m, to, templatePath, nil)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
 
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true})
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true})
 }

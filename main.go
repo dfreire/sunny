@@ -30,13 +30,12 @@ func init() {
 
 func main() {
 	// env := viper.Get("ENV").(string)
+	debug := viper.Get("debug").(bool)
 	appToken := viper.Get("appToken").(string)
 	database := viper.Get("database").(string)
 	port := viper.Get("port").(string)
-	debug := viper.Get("debug").(bool)
 	smtpHost := viper.Get("smtp.host").(string)
 	smtpPort := viper.Get("smtp.port").(int)
-	smtpFrom := viper.Get("smtp.from").(string)
 	smtpLogin := viper.Get("smtp.login").(string)
 	smtpPassword := viper.Get("smtp.password").(string)
 
@@ -54,7 +53,7 @@ func main() {
 	e.Use(echomiddleware.Logger())
 
 	hasAppToken := middleware.HasAppToken(appToken)
-	withMailer := middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpFrom, smtpLogin, smtpPassword))
+	withMailer := middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpLogin, smtpPassword))
 	withDatabase := middleware.WithDatabase(db)
 	withTransaction := middleware.WithTransaction(db)
 	withErrorLogging := middleware.ErrorLogging()

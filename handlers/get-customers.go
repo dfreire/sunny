@@ -17,9 +17,9 @@ func GetCustomers(c echo.Context) error {
 	err := db.Preload("Role").Find(&customers).Error
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
 
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: customers})
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Data: customers})
 }

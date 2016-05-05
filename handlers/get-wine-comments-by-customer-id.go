@@ -19,10 +19,10 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 	err := db.Where("customer_id = ?", customerId).Preload("Customer").Preload("Customer.Role").Find(&comments).Error
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, JsonResponse{Ok: false})
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
 
-	return c.JSON(http.StatusOK, JsonResponse{Ok: true, Data: comments})
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Data: comments})
 
 }
