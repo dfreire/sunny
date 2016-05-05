@@ -8,6 +8,7 @@ import (
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
 	"github.com/jinzhu/gorm"
+	"github.com/jordan-wright/email"
 	"github.com/labstack/echo"
 )
 
@@ -25,9 +26,9 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 		return err
 	}
 
-	to := []string{reqData.Email}
+	e := email.Email{To: []string{reqData.Email}}
 	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-newsletter-email.yaml")
-	err = sendEmail(m, to, templatePath, nil)
+	err = m.RenderAndSend(e, templatePath, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err

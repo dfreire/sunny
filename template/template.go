@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func RenderString(templateString string, templateValues interface{}) (string, error) {
+func Render(templateString string, templateValues interface{}) (string, error) {
 	t, err := template.New("").Parse(strings.Join([]string{
 		"{{define \"T\"}}",
 		templateString,
@@ -22,22 +22,4 @@ func RenderString(templateString string, templateValues interface{}) (string, er
 	}
 
 	return out.String(), nil
-}
-
-func RenderBytes(templateBytes []byte, templateValues interface{}) ([]byte, error) {
-	t, err := template.New("").Parse(strings.Join([]string{
-		"{{define \"T\"}}",
-		string(templateBytes),
-		"{{end}}",
-	}, ""))
-	if err != nil {
-		return nil, err
-	}
-
-	var out bytes.Buffer
-	if err = t.ExecuteTemplate(&out, "T", templateValues); err != nil {
-		return nil, err
-	}
-
-	return out.Bytes(), nil
 }
