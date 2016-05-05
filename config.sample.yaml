@@ -5,5 +5,6 @@ debug: true
 smtp:
     host: smtp.mailgun.org
     port: 587
-    email: joe.doe@mg.example.com
+    from: joe.doe@example.com
+    login: joe.doe@mg.example.com
     password: bbp1mrl6TJLh
