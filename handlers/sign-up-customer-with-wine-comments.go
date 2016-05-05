@@ -44,5 +44,5 @@ func sendMailAfterSignupCustomerWithWineComments(m mailer.Mailer, reqData comman
 		return err
 	}
 
-	return m.Send(e)
+	return m.Send(&e)
 }

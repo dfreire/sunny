@@ -13,7 +13,7 @@ func NewFakeMailer() Mailer {
 	return &fakeMailer{}
 }
 
-func (self *fakeMailer) Send(e email.Email) error {
+func (self *fakeMailer) Send(e *email.Email) error {
 	m := make(map[string]interface{})
 	m["from"] = e.From
 	m["to"] = e.To

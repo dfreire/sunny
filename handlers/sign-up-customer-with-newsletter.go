@@ -44,5 +44,5 @@ func sendMailAfterSignupCustomerWithNewsletter(m mailer.Mailer, reqData commands
 		return err
 	}
 
-	return m.Send(e)
+	return m.Send(&e)
 }
