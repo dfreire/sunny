@@ -29,15 +29,10 @@ func init() {
 }
 
 func main() {
-	// env := viper.Get("ENV").(string)
 	debug := viper.Get("debug").(bool)
 	appToken := viper.Get("appToken").(string)
 	database := viper.Get("database").(string)
 	port := viper.Get("port").(string)
-	smtpHost := viper.Get("smtp.host").(string)
-	smtpPort := viper.Get("smtp.port").(int)
-	smtpLogin := viper.Get("smtp.login").(string)
-	smtpPassword := viper.Get("smtp.password").(string)
 
 	db, err := gorm.Open("sqlite3", database)
 	if err != nil {
@@ -53,7 +48,7 @@ func main() {
 	e.Use(echomiddleware.Logger())
 
 	hasAppToken := middleware.HasAppToken(appToken)
-	withMailer := middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpLogin, smtpPassword))
+	withMailer := createMiddlewareWithMailer()
 	withDatabase := middleware.WithDatabase(db)
 	withTransaction := middleware.WithTransaction(db)
 	withErrorLogging := middleware.ErrorLogging()
@@ -71,4 +66,17 @@ func main() {
 
 	log.Printf("Running on port %s", port)
 	e.Run(standard.New(port))
+}
+
+func createMiddlewareWithMailer() echo.MiddlewareFunc {
+	env := viper.Get("ENV").(string)
+	if env == "production" {
+		smtpHost := viper.Get("smtp.host").(string)
+		smtpPort := viper.Get("smtp.port").(int)
+		smtpLogin := viper.Get("smtp.login").(string)
+		smtpPassword := viper.Get("smtp.password").(string)
+		return middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpLogin, smtpPassword))
+	} else {
+		return middleware.WithMailer(mailer.NewFakeMailer())
+	}
 }

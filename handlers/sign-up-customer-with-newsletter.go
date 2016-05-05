@@ -26,13 +26,23 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 		return err
 	}
 
-	e := email.Email{To: []string{reqData.Email}}
-	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-newsletter-email.yaml")
-	err = m.RenderAndSend(e, templatePath, nil)
+	err = sendMailAfterSignupCustomerWithNewsletter(m, reqData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
 
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true})
+}
+
+func sendMailAfterSignupCustomerWithNewsletter(m mailer.Mailer, reqData commands.SignupCustomerWithNewsletterRequestData) error {
+	e := email.Email{To: []string{reqData.Email}}
+	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-newsletter-email.yaml")
+
+	err := mailer.TemplateToEmail(&e, templatePath, nil)
+	if err != nil {
+		return err
+	}
+
+	return m.Send(e)
 }

@@ -14,7 +14,6 @@ import (
 
 type Mailer interface {
 	Send(e email.Email) error
-	RenderAndSend(e email.Email, templatePath string, templateValues interface{}) error
 }
 
 type mailerImpl struct {
@@ -42,7 +41,7 @@ func (self *mailerImpl) Send(e email.Email) error {
 	return e.Send(self.hostAndPort, self.plainAuth)
 }
 
-func (self *mailerImpl) RenderAndSend(e email.Email, templatePath string, templateValues interface{}) error {
+func TemplateToEmail(e *email.Email, templatePath string, templateValues interface{}) error {
 	templateData, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return err
@@ -82,5 +81,5 @@ func (self *mailerImpl) RenderAndSend(e email.Email, templatePath string, templa
 
 	e.HTML = []byte(html)
 
-	return self.Send(e)
+	return nil
 }

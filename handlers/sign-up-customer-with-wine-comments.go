@@ -26,13 +26,23 @@ func SignupCustomerWithWineComments(c echo.Context) error {
 		return err
 	}
 
-	e := email.Email{To: []string{reqData.Email}}
-	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-wine-comments-email.yaml")
-	err = m.RenderAndSend(e, templatePath, reqData)
+	err = sendMailAfterSignupCustomerWithWineComments(m, reqData)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
 
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true})
+}
+
+func sendMailAfterSignupCustomerWithWineComments(m mailer.Mailer, reqData commands.SignupCustomerWithWineCommentsRequestData) error {
+	e := email.Email{To: []string{reqData.Email}}
+	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-wine-comments-email.yaml")
+
+	err := mailer.TemplateToEmail(&e, templatePath, reqData)
+	if err != nil {
+		return err
+	}
+
+	return m.Send(e)
 }
