@@ -11,15 +11,16 @@ type CustomerRole struct {
 }
 
 type Customer struct {
-	ID              string       `gorm:"primary_key" json:"id"`
-	CreatedAt       time.Time    `json:"createdAt"`
-	UpdatedAt       time.Time    `json:"updatedAt"`
-	Name            string       `json:"name"`
-	Email           string       `json:"email"`
-	Role            CustomerRole `json:"-"`
-	RoleId          string       `json:"roleId"`
-	WantsNewsletter bool         `json:"wantsNewsletter"`
-	InNewsletter    bool         `json:"inNewsletter"`
+	ID                 string       `gorm:"primary_key" json:"id"`
+	CreatedAt          time.Time    `json:"createdAt"`
+	UpdatedAt          time.Time    `json:"updatedAt"`
+	Name               string       `json:"name"`
+	Email              string       `json:"email"`
+	Role               CustomerRole `json:"-"`
+	RoleId             string       `json:"roleId"`
+	OptedInNewsletter  bool         `json:"optedInNewsletter"`
+	OptedOutNewsletter bool         `json:"optedOutNewsletter"`
+	SentToNewsletter   bool         `json:"sentToNewsletter"`
 }
 
 type WineComment struct {

@@ -11,14 +11,15 @@ const SCHEMA = `
 		('wine_shop'), ('wine_lover'), ('other');
 			
     CREATE TABLE IF NOT EXISTS customer (
-    	id               TEXT PRIMARY KEY,
-        created_at       DATETIME NOT NULL,
-        updated_at       DATETIME NOT NULL,
-		name             TEXT,
-    	email            TEXT NOT NULL UNIQUE,
-    	role_id          TEXT NOT NULL,
-        wants_newsletter BOOL,
-		in_newsletter    BOOL,
+    	id                   TEXT PRIMARY KEY,
+        created_at           DATETIME NOT NULL,
+        updated_at           DATETIME NOT NULL,
+		name                 TEXT,
+    	email                TEXT NOT NULL UNIQUE,
+    	role_id              TEXT NOT NULL,
+		opted_in_newsletter  BOOL,
+		opted_out_newsletter BOOL,
+		sent_to_newsletter   BOOL,
 		
 		FOREIGN KEY (role_id) REFERENCES customer_role(id)
     );
