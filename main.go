@@ -69,14 +69,13 @@ func main() {
 }
 
 func createMiddlewareWithMailer() echo.MiddlewareFunc {
-	env := viper.Get("ENV").(string)
-	if env == "production" {
+	if viper.Get("fakeMailer") != nil && viper.Get("fakeMailer").(bool) {
+		return middleware.WithMailer(mailer.NewFakeMailer())
+	} else {
 		smtpHost := viper.Get("smtp.host").(string)
 		smtpPort := viper.Get("smtp.port").(int)
 		smtpLogin := viper.Get("smtp.login").(string)
 		smtpPassword := viper.Get("smtp.password").(string)
 		return middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpLogin, smtpPassword))
-	} else {
-		return middleware.WithMailer(mailer.NewFakeMailer())
 	}
 }
