@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// http POST http://localhost:3500/send-to-mailing-list
+// http POST http://localhost:3500/send-to-newsleter
 func SendToNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	// m := c.Get(middleware.MAILER).(mailer.Mailer)

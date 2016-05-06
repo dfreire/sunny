@@ -59,6 +59,8 @@ func main() {
 	e.Get("/get-customers", handlers.GetCustomers, withLogging, hasAppToken, withDatabase)
 	e.Get("/get-wine-comments-by-customer-id", handlers.GetWineCommentsByCustomerId, withLogging, hasAppToken, withDatabase)
 
+	e.Get("/send-to-newsletter", handlers.SendToNewsletter, withLogging, withTransaction, withMailer)
+
 	if debug {
 		db.LogMode(true)
 		e.SetDebug(true)
