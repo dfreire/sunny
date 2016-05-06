@@ -15,7 +15,10 @@ func SendToNewsletter(c echo.Context) error {
 	// m := c.Get(middleware.MAILER).(mailer.Mailer)
 
 	customers := []model.Customer{}
-	err := tx.Where("sent_to_newsletter = ?", false).Find(&customers).Error
+	err := tx.Where(map[string]interface{}{
+		"opted_out_newsletter": false,
+		"sent_to_newsletter":   false,
+	}).Find(&customers).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
