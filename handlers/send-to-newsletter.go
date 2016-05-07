@@ -24,5 +24,12 @@ func SendToNewsletter(c echo.Context) error {
 		return err
 	}
 
+	type export struct {
+		Name     string
+		Email    string
+		Role     string
+		Language string
+	}
+
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Data: customers})
 }
