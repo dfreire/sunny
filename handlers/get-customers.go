@@ -21,5 +21,5 @@ func GetCustomers(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Data: customers})
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
 }

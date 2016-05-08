@@ -23,6 +23,6 @@ func GetWineCommentsByCustomerId(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Data: comments})
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: comments})
 
 }

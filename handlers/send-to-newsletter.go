@@ -31,5 +31,5 @@ func SendToNewsletter(c echo.Context) error {
 		Language string
 	}
 
-	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Data: customers})
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
 }
