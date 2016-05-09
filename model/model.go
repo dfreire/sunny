@@ -20,6 +20,8 @@ type Customer struct {
 	UpdatedAt          time.Time    `json:"updatedAt"`
 	Name               string       `json:"name"`
 	Email              string       `json:"email"`
+	Language           Language     `json:"-"`
+	LanguageId         string       `json:"languageId"`
 	Role               CustomerRole `json:"-"`
 	RoleId             string       `json:"roleId"`
 	OptedInNewsletter  bool         `json:"optedInNewsletter"`

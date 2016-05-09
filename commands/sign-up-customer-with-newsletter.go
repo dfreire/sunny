@@ -7,9 +7,10 @@ import (
 )
 
 type SignupCustomerWithNewsletterRequestData struct {
-	Name   string `json:"name,omitempty"`
-	Email  string `json:"email"`
-	RoleId string `json:"roleId"`
+	Name       string `json:"name,omitempty"`
+	Email      string `json:"email"`
+	RoleId     string `json:"roleId"`
+	LanguageId string `json:"language"`
 }
 
 func SignupCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewsletterRequestData) error {
@@ -18,9 +19,10 @@ func SignupCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewslet
 	}
 
 	toCreate := model.Customer{
-		ID:     bson.NewObjectId().Hex(),
-		Email:  reqData.Email,
-		RoleId: reqData.RoleId,
+		ID:         bson.NewObjectId().Hex(),
+		Email:      reqData.Email,
+		RoleId:     reqData.RoleId,
+		LanguageId: reqData.LanguageId,
 	}
 
 	customer := model.Customer{}
@@ -32,6 +34,7 @@ func SignupCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewslet
 	toUpdate := model.Customer{
 		Name:              reqData.Name,
 		RoleId:            reqData.RoleId,
+		LanguageId:        reqData.LanguageId,
 		OptedInNewsletter: true,
 	}
 

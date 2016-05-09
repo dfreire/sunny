@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// http POST http://localhost:3500/signup-customer-with-wine-comments email="joe.doe@mailinator.com" roleId="wine_lover" wineComments:='[{"wineId": "wine-1", "wineName": "Soalheiro Alvarinho", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineName": "Soalheiro Alvarinho", "wineYear": 2014, "comment": "fantastic"}]'
+// http POST http://localhost:3500/signup-customer-with-wine-comments email="joe.doe@mailinator.com" roleId="wine_lover" language="en" wineComments:='[{"wineId": "wine-1", "wineName": "Soalheiro Alvarinho", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineName": "Soalheiro Alvarinho", "wineYear": 2014, "comment": "fantastic"}]'
 func SignupCustomerWithWineComments(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	m := c.Get(middleware.MAILER).(mailer.Mailer)

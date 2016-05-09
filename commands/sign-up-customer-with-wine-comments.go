@@ -10,6 +10,7 @@ type SignupCustomerWithWineCommentsRequestData struct {
 	Name         string        `json:"name,omitempty"`
 	Email        string        `json:"email"`
 	RoleId       string        `json:"roleId"`
+	LanguageId   string        `json:"language"`
 	WineComments []WineComment `json:"wineComments"`
 }
 
@@ -26,9 +27,10 @@ func SignupCustomerWithWineComments(db *gorm.DB, reqData SignupCustomerWithWineC
 	}
 
 	toCreate := model.Customer{
-		ID:     bson.NewObjectId().Hex(),
-		Email:  reqData.Email,
-		RoleId: reqData.RoleId,
+		ID:         bson.NewObjectId().Hex(),
+		Email:      reqData.Email,
+		RoleId:     reqData.RoleId,
+		LanguageId: reqData.LanguageId,
 	}
 
 	customer := model.Customer{}
@@ -38,8 +40,9 @@ func SignupCustomerWithWineComments(db *gorm.DB, reqData SignupCustomerWithWineC
 	}
 
 	toUpdate := model.Customer{
-		Name:   reqData.Name,
-		RoleId: reqData.RoleId,
+		Name:       reqData.Name,
+		RoleId:     reqData.RoleId,
+		LanguageId: reqData.LanguageId,
 	}
 
 	err = db.Model(&customer).Updates(toUpdate).Error

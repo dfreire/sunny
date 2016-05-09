@@ -22,6 +22,7 @@ const SCHEMA = `
         updated_at           DATETIME NOT NULL,
 		name                 TEXT,
     	email                TEXT NOT NULL UNIQUE,
+		language_id          TEXT NOT NULL,
     	role_id              TEXT NOT NULL,
 		opted_in_newsletter  BOOL,
 		opted_out_newsletter BOOL,

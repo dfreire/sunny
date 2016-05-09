@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// http POST http://localhost:3500/signup-customer-with-newsletter email="joe.doe@mailinator.com" roleId="wine_lover"
+// http POST http://localhost:3500/signup-customer-with-newsletter email="joe.doe@mailinator.com" roleId="wine_lover" language="pt"
 func SignupCustomerWithNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	m := c.Get(middleware.MAILER).(mailer.Mailer)
