@@ -3,6 +3,12 @@ package model
 const SCHEMA = `
 	PRAGMA foreign_keys=ON;
 	
+	CREATE TABLE IF NOT EXISTS language (
+		id TEXT PRIMARY KEY
+	);
+	INSERT OR IGNORE INTO language VALUES
+		('pt'), ('en'), ('de'), ('ja');
+	
 	CREATE TABLE IF NOT EXISTS customer_role (
 		id TEXT PRIMARY KEY
 	);

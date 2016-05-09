@@ -6,6 +6,10 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type Language struct {
+	ID string `gorm:"primary_key" json:"id"`
+}
+
 type CustomerRole struct {
 	ID string `gorm:"primary_key" json:"id"`
 }
