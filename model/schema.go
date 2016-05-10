@@ -28,6 +28,7 @@ const SCHEMA = `
 		opted_out_newsletter BOOL,
 		sent_to_newsletter   BOOL,
 		
+		FOREIGN KEY (language_id) REFERENCES language(id),
 		FOREIGN KEY (role_id) REFERENCES customer_role(id)
     );
 
