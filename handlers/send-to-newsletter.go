@@ -26,6 +26,13 @@ func SendToNewsletter(c echo.Context) error {
 		return err
 	}
 
+	exportToExcel(customers)
+
+	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
+}
+
+func exportToExcel(customers []model.Customer) {
+
 	type export struct {
 		Name     string
 		Email    string
@@ -33,22 +40,28 @@ func SendToNewsletter(c echo.Context) error {
 		Language string
 	}
 
-	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
-}
-
-func exportToExcel(customers []model.Customer) {
 	file := xlsx.NewFile()
-	sheet, err := file.AddSheet("Sheet1")
+
+	sheet, err := file.AddSheet("Registos")
 	if err != nil {
 		fmt.Printf(err.Error())
 	}
 
+	row := sheet.AddRow()
+	row.AddCell().SetString("Nome")
+	row.AddCell().SetString("Email")
+	row.AddCell().SetString("Perfil")
+	row.AddCell().SetString("Idioma")
+
 	for _, customer := range customers {
 		row := sheet.AddRow()
-
-		cell := row.AddCell()
-		cell.Value = customer.Email
+		row.AddCell().SetString(customer.Name)
+		row.AddCell().SetString(customer.Email)
+		row.AddCell().SetString(customer.RoleId)
+		row.AddCell().SetString(customer.LanguageId)
 	}
+
+	sheet.SetColWidth(0, 3, 30)
 
 	err = file.Save("file.xlsx")
 	if err != nil {
