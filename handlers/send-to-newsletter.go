@@ -42,6 +42,8 @@ func SendToNewsletter(c echo.Context) error {
 		return err
 	}
 
+	// TODO mark customer ids with sent_to_newsletter = true
+
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
 }
 
