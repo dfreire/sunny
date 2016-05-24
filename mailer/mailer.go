@@ -48,6 +48,7 @@ func TemplateToEmail(e *email.Email, templatePath string, templateValues interfa
 	}
 
 	var mt struct {
+		To      []string
 		From    string
 		Cc      []string
 		Bcc     []string
@@ -58,6 +59,10 @@ func TemplateToEmail(e *email.Email, templatePath string, templateValues interfa
 	err = yaml.Unmarshal([]byte(templateData), &mt)
 	if err != nil {
 		return err
+	}
+
+	if mt.To != nil {
+		e.To = mt.To
 	}
 
 	if mt.From != "" {

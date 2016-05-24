@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
+	"path/filepath"
 
+	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
+	"github.com/jordan-wright/email"
 	"github.com/labstack/echo"
 	"github.com/tealeg/xlsx"
 )
@@ -14,7 +16,7 @@ import (
 // http POST http://localhost:3500/send-to-newsletter
 func SendToNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
-	// m := c.Get(middleware.MAILER).(mailer.Mailer)
+	m := c.Get(middleware.MAILER).(mailer.Mailer)
 
 	customers := []model.Customer{}
 	err := tx.Where(map[string]interface{}{
@@ -26,25 +28,29 @@ func SendToNewsletter(c echo.Context) error {
 		return err
 	}
 
-	exportToExcel(customers)
+	fileName := "emails.xlsx"
+
+	err = exportEmailsToFile(customers, fileName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
+		return err
+	}
+
+	err = sendMailToNewsletter(m, fileName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
+		return err
+	}
 
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
 }
 
-func exportToExcel(customers []model.Customer) {
-
-	type export struct {
-		Name     string
-		Email    string
-		Role     string
-		Language string
-	}
-
+func exportEmailsToFile(customers []model.Customer, fileName string) error {
 	file := xlsx.NewFile()
 
 	sheet, err := file.AddSheet("Registos")
 	if err != nil {
-		fmt.Printf(err.Error())
+		return err
 	}
 
 	row := sheet.AddRow()
@@ -61,10 +67,20 @@ func exportToExcel(customers []model.Customer) {
 		row.AddCell().SetString(customer.LanguageId)
 	}
 
-	sheet.SetColWidth(0, 3, 30)
+	sheet.SetColWidth(0, 5, 25)
 
-	err = file.Save("file.xlsx")
+	return file.Save(fileName)
+}
+
+func sendMailToNewsletter(m mailer.Mailer, fileName string) error {
+	e := email.Email{}
+	e.AttachFile(fileName)
+	templatePath := filepath.Join("templates", "mail", "pt", "send-to-newsletter-email.yaml")
+
+	err := mailer.TemplateToEmail(&e, templatePath, nil)
 	if err != nil {
-		fmt.Printf(err.Error())
+		return err
 	}
+
+	return m.Send(&e)
 }
