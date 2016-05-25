@@ -28,6 +28,19 @@ func SendToNewsletter(c echo.Context) error {
 		return err
 	}
 
+	ids := []string{}
+	for _, customer := range customers {
+		ids = append(ids, customer.ID)
+	}
+
+	err = tx.Model(&model.Customer{}).
+		Where("id IN (?)", ids).
+		Update("sent_to_newsletter", true).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
+		return err
+	}
+
 	fileName := "emails.xlsx"
 
 	err = exportEmailsToFile(customers, fileName)
@@ -41,8 +54,6 @@ func SendToNewsletter(c echo.Context) error {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
-
-	// TODO mark customer ids with sent_to_newsletter = true
 
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
 }
