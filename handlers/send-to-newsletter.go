@@ -28,31 +28,33 @@ func SendToNewsletter(c echo.Context) error {
 		return err
 	}
 
-	ids := []string{}
-	for _, customer := range customers {
-		ids = append(ids, customer.ID)
-	}
+	if len(customers) > 0 {
+		ids := []string{}
+		for _, customer := range customers {
+			ids = append(ids, customer.ID)
+		}
 
-	err = tx.Model(&model.Customer{}).
-		Where("id IN (?)", ids).
-		Update("sent_to_newsletter", true).Error
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
-		return err
-	}
+		err = tx.Model(&model.Customer{}).
+			Where("id IN (?)", ids).
+			Update("sent_to_newsletter", true).Error
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
+			return err
+		}
 
-	fileName := "emails.xlsx"
+		fileName := "emails.xlsx"
 
-	err = exportEmailsToFile(customers, fileName)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
-		return err
-	}
+		err = exportEmailsToFile(customers, fileName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
+			return err
+		}
 
-	err = sendMailToNewsletter(m, fileName)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
-		return err
+		err = sendMailToNewsletter(m, fileName)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
+			return err
+		}
 	}
 
 	return c.JSON(http.StatusOK, jsonResponse{Ok: true, Result: customers})
