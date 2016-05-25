@@ -16,7 +16,7 @@ import (
 // http POST http://localhost:3500/send-to-newsletter
 func SendToNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
-	m := c.Get(middleware.MAILER).(mailer.Mailer)
+	mx := c.Get(middleware.MAILER).(mailer.Mailer)
 
 	customers := []model.Customer{}
 	err := tx.Where(map[string]interface{}{
@@ -36,7 +36,8 @@ func SendToNewsletter(c echo.Context) error {
 
 		err = tx.Model(&model.Customer{}).
 			Where("id IN (?)", ids).
-			Update("sent_to_newsletter", true).Error
+			Update("sent_to_newsletter", true).
+			Error
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 			return err
@@ -44,14 +45,12 @@ func SendToNewsletter(c echo.Context) error {
 
 		fileName := "emails.xlsx"
 
-		err = exportEmailsToFile(customers, fileName)
-		if err != nil {
+		if err = exportEmailsToFile(customers, fileName); err != nil {
 			c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 			return err
 		}
 
-		err = sendMailToNewsletter(m, fileName)
-		if err != nil {
+		if err = sendMailToNewsletter(mx, fileName); err != nil {
 			c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 			return err
 		}
