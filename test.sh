@@ -1,3 +1,4 @@
 #!/bin/bash
-go test -v -coverprofile=coverage.out
+export ENV="development"
+go test -v -coverprofile=coverage.out ./handlers/...
 go tool cover -func=coverage.out
