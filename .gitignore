@@ -5,4 +5,5 @@ vendor/
 templates/
 **.db
 config.development.yaml
+coverage.out
 emails.xlsx
