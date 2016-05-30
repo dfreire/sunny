@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"path/filepath"
 
 	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mailer"
@@ -37,9 +36,8 @@ func SignupCustomerWithWineComments(c echo.Context) error {
 
 func sendMailAfterSignupCustomerWithWineComments(m mailer.Mailer, reqData commands.SignupCustomerWithWineCommentsRequestData) error {
 	e := email.Email{To: []string{reqData.Email}}
-	templatePath := filepath.Join("templates", "mail", "pt", "on-sign-up-customer-with-wine-comments-email.yaml")
 
-	err := mailer.TemplateToEmail(&e, templatePath, reqData)
+	err := mailer.TemplateToEmail(&e, "on-sign-up-customer-with-wine-comments-email", "pt", nil)
 	if err != nil {
 		return err
 	}

@@ -2,46 +2,28 @@ package mailer
 
 import (
 	"io/ioutil"
-	"net/smtp"
-	"strconv"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v2"
 
 	"github.com/dfreire/sunny/template"
 	"github.com/jordan-wright/email"
+	"github.com/spf13/viper"
 )
 
 type Mailer interface {
 	Send(e *email.Email) error
 }
 
-type mailerImpl struct {
-	hostAndPort string
-	plainAuth   smtp.Auth
-}
-
-func NewMailer(host string, port int, login, password string) Mailer {
-	hostAndPort := strings.Join([]string{
-		host,
-		strconv.Itoa(port),
-	}, ":")
-
-	plainAuth := smtp.PlainAuth(
-		"", // identity
-		login,
-		password,
-		host,
+func TemplateToEmail(e *email.Email, templateName, lang string, templateValues interface{}) error {
+	templatePath := filepath.Join(
+		viper.GetString("MAILER_TEMPLATES_DIR"),
+		"mail",
+		lang,
+		strings.Join([]string{templateName, "yaml"}, "."),
 	)
 
-	return &mailerImpl{hostAndPort, plainAuth}
-}
-
-func (self *mailerImpl) Send(e *email.Email) error {
-	return e.Send(self.hostAndPort, self.plainAuth)
-}
-
-func TemplateToEmail(e *email.Email, templatePath string, templateValues interface{}) error {
 	templateData, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return err

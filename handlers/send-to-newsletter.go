@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"path/filepath"
 
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
@@ -89,9 +88,8 @@ func exportEmailsToFile(customers []model.Customer, fileName string) error {
 func sendMailToNewsletter(m mailer.Mailer, fileName string) error {
 	e := email.Email{}
 	e.AttachFile(fileName)
-	templatePath := filepath.Join("templates", "mail", "pt", "send-to-newsletter-email.yaml")
 
-	err := mailer.TemplateToEmail(&e, templatePath, nil)
+	err := mailer.TemplateToEmail(&e, "send-to-newsletter-email", "pt", nil)
 	if err != nil {
 		return err
 	}

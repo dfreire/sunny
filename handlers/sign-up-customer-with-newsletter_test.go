@@ -11,9 +11,15 @@ import (
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func init() {
+	viper.SetEnvPrefix("SUNNY")
+	viper.AutomaticEnv()
+}
 
 func TestSignupCustomerWithNewsletter(t *testing.T) {
 	c := &mocks.Context{}
@@ -33,12 +39,12 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 			arg.Name = "Joe Doe"
 			arg.Email = "joe.doe@mailinator.com"
 			arg.RoleId = "wine_lover"
-			arg.LanguageId = "en"
+			arg.LanguageId = "pt"
 		}).
 		Return(nil)
 
 	c.On("JSON", http.StatusOK, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
-	c.On("JSON", http.StatusInternalServerError, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
+	// c.On("JSON", http.StatusInternalServerError, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
 
 	assert.Nil(t, SignupCustomerWithNewsletter(c))
 
