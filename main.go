@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"strings"
 
 	"github.com/dfreire/sunny/handlers"
 	"github.com/dfreire/sunny/mailer"
@@ -17,22 +16,15 @@ import (
 )
 
 func init() {
+	viper.SetEnvPrefix("SUNNY")
 	viper.AutomaticEnv()
-	env := viper.Get("ENV").(string)
-
-	viper.AddConfigPath(".")
-	viper.SetConfigName(strings.Join([]string{"config", env}, "."))
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatalf("read config err: %+v", err)
-	}
 }
 
 func main() {
-	debug := viper.Get("debug").(bool)
-	appToken := viper.Get("appToken").(string)
-	database := viper.Get("database").(string)
-	port := viper.Get("port").(string)
+	debug := viper.GetBool("DEBUG") == true
+	appToken := viper.GetString("APP_TOKEN")
+	database := viper.GetString("DATABASE")
+	port := viper.GetString("PORT")
 
 	db, err := gorm.Open("sqlite3", database)
 	if err != nil {
@@ -71,13 +63,13 @@ func main() {
 }
 
 func createMiddlewareWithMailer() echo.MiddlewareFunc {
-	if viper.Get("fakeMailer") != nil && viper.Get("fakeMailer").(bool) {
+	if viper.GetString("MAILER") == "fake" {
 		return middleware.WithMailer(mailer.NewFakeMailer())
 	} else {
-		smtpHost := viper.Get("smtp.host").(string)
-		smtpPort := viper.Get("smtp.port").(int)
-		smtpLogin := viper.Get("smtp.login").(string)
-		smtpPassword := viper.Get("smtp.password").(string)
+		smtpHost := viper.GetString("smtp.host")
+		smtpPort := viper.GetInt("smtp.port")
+		smtpLogin := viper.GetString("smtp.login")
+		smtpPassword := viper.GetString("smtp.password")
 		return middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpLogin, smtpPassword))
 	}
 }
