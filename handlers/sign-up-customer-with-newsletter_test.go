@@ -1,10 +1,11 @@
-package handlers
+package handlers_test
 
 import (
 	"net/http"
 	"testing"
 
 	"github.com/dfreire/sunny/commands"
+	"github.com/dfreire/sunny/handlers"
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
 	"github.com/dfreire/sunny/mocks"
@@ -46,7 +47,7 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	c.On("JSON", http.StatusOK, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
 	// c.On("JSON", http.StatusInternalServerError, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
 
-	assert.Nil(t, SignupCustomerWithNewsletter(c))
+	assert.Nil(t, handlers.SignupCustomerWithNewsletter(c))
 
 	c.AssertExpectations(t)
 }
