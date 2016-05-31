@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
 	"github.com/labstack/echo"
+	"github.com/spf13/viper"
 )
 
 // http POST http://localhost:3500/signup-customer-with-wine-comments email="joe.doe@mailinator.com" roleId="wine_lover" language="en" wineComments:='[{"wineId": "wine-1", "wineName": "Soalheiro Alvarinho", "wineYear": 2015, "comment": "great"}, {"wineId": "wine-1", "wineName": "Soalheiro Alvarinho", "wineYear": 2014, "comment": "fantastic"}]'
@@ -35,7 +36,10 @@ func SignupCustomerWithWineComments(c echo.Context) error {
 }
 
 func sendMailAfterSignupCustomerWithWineComments(m mailer.Mailer, reqData commands.SignupCustomerWithWineCommentsRequestData) error {
-	e := email.Email{To: []string{reqData.Email}}
+	e := email.Email{
+		To:  []string{reqData.Email},
+		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
+	}
 
 	err := mailer.TemplateToEmail(&e, "on-sign-up-customer-with-wine-comments-email", "pt", nil)
 	if err != nil {

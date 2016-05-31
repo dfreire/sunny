@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
 	"github.com/labstack/echo"
+	"github.com/spf13/viper"
 	"github.com/tealeg/xlsx"
 )
 
@@ -86,7 +87,12 @@ func exportEmailsToFile(customers []model.Customer, fileName string) error {
 }
 
 func sendMailToNewsletter(m mailer.Mailer, fileName string) error {
-	e := email.Email{}
+	e := email.Email{
+		From: viper.GetString("SUNNY_TEAM_EMAIL"),
+		To:   []string{viper.GetString("SUNNY_OWNER_EMAIL")},
+		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
+	}
+
 	e.AttachFile(fileName)
 
 	err := mailer.TemplateToEmail(&e, "send-to-newsletter-email", "pt", nil)

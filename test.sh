@@ -8,6 +8,9 @@ HERE=`cd -P $(dirname $0) && pwd`
 #export SUNNY_PORT=":3500"
 #export SUNNY_MAILER="fake"
 export SUNNY_MAILER_TEMPLATES_DIR="$HERE/templates"
+export SUNNY_TEAM_EMAIL="team-6f66ed903426@mailinator.com"
+export SUNNY_OWNER_EMAIL="owner-6f66ed903426@mailinator.com"
+export SUNNY_NOTIFICATION_EMAILS="a-6f66ed903426@mailinator.com,b-6f66ed903426@mailinator.com"
 
 go test -v -coverprofile=coverage.out ./handlers/...
 go tool cover -func=coverage.out

@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/jordan-wright/email"
 	"github.com/labstack/echo"
+	"github.com/spf13/viper"
 )
 
 // http POST http://localhost:3500/signup-customer-with-newsletter email="joe.doe@mailinator.com" roleId="wine_lover" language="pt"
@@ -35,7 +36,10 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 }
 
 func sendMailAfterSignupCustomerWithNewsletter(m mailer.Mailer, reqData commands.SignupCustomerWithNewsletterRequestData) error {
-	e := email.Email{To: []string{reqData.Email}}
+	e := email.Email{
+		To:  []string{reqData.Email},
+		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
+	}
 
 	err := mailer.TemplateToEmail(&e, "on-sign-up-customer-with-newsletter-email", "pt", nil)
 	if err != nil {
