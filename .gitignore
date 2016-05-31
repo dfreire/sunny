@@ -2,7 +2,6 @@
 **.DS_Store
 .vscode/
 vendor/
-templates/
 **.db
 coverage.out
 emails.xlsx

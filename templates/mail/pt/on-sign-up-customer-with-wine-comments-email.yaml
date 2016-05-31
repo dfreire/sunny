@@ -1,0 +1,18 @@
+subject: Prova de Vinhos Quinta de Soalheiro
+html: >
+    {{range .WineComments}}
+        <p><b>{{ .WineName }}{{ if .WineYear }} {{ .WineYear }}{{ end }}</b><br/>
+        {{ .Comment }}</p>
+    {{ end }}
+    
+    <br/>
+    <p>Aproveitámos esta oportunidade para o subscrever na nossa newsletter.</p>
+    
+    <p>Enviaremos as últimas novidades para o seu endereço de email.</p>
+    
+    <p>Se por alguma razão quiser cancelar a subscrição, poderá fazê-lo enviando um mail para
+    <a href="mailto:quinta@soalheiro.com?subject=Cancelar Subscrição da Newsletter">quinta@soalheiro.com</a>.</p>
+    
+    <p>Gratos pela sua preferência,</p>
+    <p>Quinta de Soalheiro<br/>
+    <a href="http://www.soalheiro.com">www.soalheiro.com</a></p>
