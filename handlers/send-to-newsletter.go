@@ -13,7 +13,7 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-// http POST http://localhost:3500/send-to-newsletter
+// http POST http://localhost:3500/send-to-newsletter?appToken=2fe9a70a-46f2-4d00-88f2-6f66ed903426
 func SendToNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	mx := c.Get(middleware.MAILER).(mailer.Mailer)
@@ -88,8 +88,8 @@ func exportEmailsToFile(customers []model.Customer, fileName string) error {
 
 func sendMailToNewsletter(m mailer.Mailer, fileName string) error {
 	e := email.Email{
-		From: viper.GetString("SUNNY_TEAM_EMAIL"),
-		To:   []string{viper.GetString("SUNNY_OWNER_EMAIL")},
+		From: viper.GetString("TEAM_EMAIL"),
+		To:   []string{viper.GetString("OWNER_EMAIL")},
 		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
