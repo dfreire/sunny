@@ -1,0 +1,18 @@
+subject: Tasting of Quinta de Soalheiro Wines
+html: >
+    {{range .WineComments}}
+        <p><b>{{ .WineName }}{{ if .WineYear }} {{ .WineYear }}{{ end }}</b><br/>
+        {{ .Comment }}</p>
+    {{ end }}
+    
+    <br/>
+    <p>We took this opportunity to subscribe you in the Quinta de Soalheiro newsletter.</p>
+    
+    <p>We will send our latest news to your email address.</p>
+    
+    <p>If, for any reason, you wish to cancel your subscription, you can do it by sending a mail to
+    <a href="mailto:quinta@soalheiro.com?subject=Cancel Newsletter Subscription">quinta@soalheiro.com</a>.</p>
+    
+    <p>Thank you for your preference,</p>
+    <p>Quinta de Soalheiro<br/>
+    <a href="http://www.soalheiro.com">www.soalheiro.com</a></p>
