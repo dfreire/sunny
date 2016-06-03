@@ -29,6 +29,6 @@ func NewMailer(host string, port int, login, password string) Mailer {
 	return &mailerImpl{hostAndPort, plainAuth}
 }
 
-func (self *mailerImpl) Send(e *email.Email) error {
+func (self *mailerImpl) SendEmail(e *email.Email) error {
 	return e.Send(self.hostAndPort, self.plainAuth)
 }

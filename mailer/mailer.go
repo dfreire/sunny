@@ -13,10 +13,10 @@ import (
 )
 
 type Mailer interface {
-	Send(e *email.Email) error
+	SendEmail(e *email.Email) error
 }
 
-func TemplateToEmail(e *email.Email, templateId, languageId string, templateValues interface{}) error {
+func PrepareEmail(e *email.Email, languageId, templateId string, templateValues interface{}) error {
 	switch languageId {
 	case "pt", "en":
 		break

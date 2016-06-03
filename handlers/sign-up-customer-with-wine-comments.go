@@ -43,10 +43,10 @@ func sendMailAfterSignupCustomerWithWineComments(m mailer.Mailer, reqData comman
 
 	templateId := "on-sign-up-customer-with-wine-comments-email"
 	languageId := reqData.LanguageId
-	err := mailer.TemplateToEmail(&e, templateId, languageId, nil)
+	err := mailer.PrepareEmail(&e, languageId, templateId, nil)
 	if err != nil {
 		return err
 	}
 
-	return m.Send(&e)
+	return m.SendEmail(&e)
 }
