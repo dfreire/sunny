@@ -23,16 +23,7 @@ func init() {
 }
 
 func TestSignupCustomerWithNewsletter(t *testing.T) {
-	c := &mocks.Context{}
-
-	db, err := gorm.Open("sqlite3", ":memory:")
-	assert.Nil(t, err)
-	model.Initialize(db)
-	tx := db.Begin()
-	c.On("Get", middleware.TX).Return(tx)
-
-	m := mailer.NewFakeMailer()
-	c.On("Get", middleware.MAILER).Return(m)
+	c := createMockContext()
 
 	c.On("Bind", mock.AnythingOfType("*commands.SignupCustomerWithNewsletterRequestData")).
 		Run(func(args mock.Arguments) {
@@ -44,10 +35,29 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 		}).
 		Return(nil)
 
-	c.On("JSON", http.StatusOK, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
-	// c.On("JSON", http.StatusInternalServerError, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
-
 	assert.Nil(t, handlers.SignupCustomerWithNewsletter(c))
 
 	c.AssertExpectations(t)
+}
+
+func createMockContext() *mocks.Context {
+	c := &mocks.Context{}
+
+	db, err := gorm.Open("sqlite3", ":memory:")
+	if err != nil {
+		panic(err)
+	}
+
+	model.Initialize(db)
+
+	tx := db.Begin()
+	c.On("Get", middleware.TX).Return(tx)
+
+	m := mailer.NewFakeMailer()
+	c.On("Get", middleware.MAILER).Return(m)
+
+	c.On("JSON", http.StatusOK, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
+	// c.On("JSON", http.StatusInternalServerError, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
+
+	return c
 }
