@@ -95,7 +95,9 @@ func sendMailToNewsletter(m mailer.Mailer, fileName string) error {
 
 	e.AttachFile(fileName)
 
-	err := mailer.TemplateToEmail(&e, "send-to-newsletter-email", "pt", nil)
+	templateId := "send-to-newsletter-email"
+	languageId := "pt"
+	err := mailer.TemplateToEmail(&e, templateId, languageId, nil)
 	if err != nil {
 		return err
 	}

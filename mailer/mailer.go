@@ -16,12 +16,19 @@ type Mailer interface {
 	Send(e *email.Email) error
 }
 
-func TemplateToEmail(e *email.Email, templateName, lang string, templateValues interface{}) error {
+func TemplateToEmail(e *email.Email, templateId, languageId string, templateValues interface{}) error {
+	switch languageId {
+	case "pt", "en":
+		break
+	default:
+		languageId = "en"
+	}
+
 	templatePath := filepath.Join(
 		viper.GetString("MAILER_TEMPLATES_DIR"),
 		"mail",
-		lang,
-		strings.Join([]string{templateName, "yaml"}, "."),
+		languageId,
+		strings.Join([]string{templateId, "yaml"}, "."),
 	)
 
 	templateData, err := ioutil.ReadFile(templatePath)

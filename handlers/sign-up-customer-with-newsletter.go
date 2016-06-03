@@ -41,7 +41,9 @@ func sendMailAfterSignupCustomerWithNewsletter(m mailer.Mailer, reqData commands
 		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
-	err := mailer.TemplateToEmail(&e, "on-sign-up-customer-with-newsletter-email", "pt", nil)
+	templateId := "on-sign-up-customer-with-newsletter-email"
+	languageId := reqData.LanguageId
+	err := mailer.TemplateToEmail(&e, templateId, languageId, nil)
 	if err != nil {
 		return err
 	}
