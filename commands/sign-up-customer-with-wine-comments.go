@@ -1,8 +1,11 @@
 package commands
 
 import (
+	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
+	"github.com/jordan-wright/email"
+	"github.com/spf13/viper"
 	"labix.org/v2/mgo/bson"
 )
 
@@ -21,7 +24,7 @@ type WineComment struct {
 	Comment  string `json:"comment"`
 }
 
-func SignupCustomerWithWineComments(db *gorm.DB, reqData SignupCustomerWithWineCommentsRequestData) error {
+func SignupCustomerWithWineComments(db *gorm.DB, mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
 	toFind := model.Customer{
 		Email: reqData.Email,
 	}
@@ -57,7 +60,7 @@ func SignupCustomerWithWineComments(db *gorm.DB, reqData SignupCustomerWithWineC
 		}
 	}
 
-	return nil
+	return sendMailAfterSignupCustomerWithWineComments(mx, reqData)
 }
 
 func upsertWineComment(db *gorm.DB, customerId string, comment WineComment) error {
@@ -82,4 +85,20 @@ func upsertWineComment(db *gorm.DB, customerId string, comment WineComment) erro
 	}
 
 	return db.Model(&wineComment).Updates(toUpdate).Error
+}
+
+func sendMailAfterSignupCustomerWithWineComments(mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
+	e := email.Email{
+		To:  []string{reqData.Email},
+		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
+	}
+
+	templateId := "on-sign-up-customer-with-wine-comments-email"
+	languageId := reqData.LanguageId
+	err := mailer.PrepareEmail(&e, languageId, templateId, nil)
+	if err != nil {
+		return err
+	}
+
+	return mx.SendEmail(&e)
 }
