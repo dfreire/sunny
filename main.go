@@ -63,8 +63,8 @@ func main() {
 }
 
 func createMiddlewareWithMailer() echo.MiddlewareFunc {
-	if viper.GetString("MAILER") == "fake" {
-		return middleware.WithMailer(mailer.NewFakeMailer())
+	if viper.GetString("MAILER") == "log" {
+		return middleware.WithMailer(mailer.NewLogMailer())
 	} else {
 		smtpHost := viper.GetString("smtp.host")
 		smtpPort := viper.GetInt("smtp.port")

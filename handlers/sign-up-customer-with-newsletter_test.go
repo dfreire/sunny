@@ -53,8 +53,8 @@ func createMockContext() *mocks.Context {
 	tx := db.Begin()
 	c.On("Get", middleware.TX).Return(tx)
 
-	m := mailer.NewFakeMailer()
-	c.On("Get", middleware.MAILER).Return(m)
+	mx := mailer.NewLogMailer()
+	c.On("Get", middleware.MAILER).Return(mx)
 
 	c.On("JSON", http.StatusOK, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
 	// c.On("JSON", http.StatusInternalServerError, mock.AnythingOfType("handlers.jsonResponse")).Return(nil)
