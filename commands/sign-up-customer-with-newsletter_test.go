@@ -5,20 +5,14 @@ import (
 
 	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mailer"
-	"github.com/dfreire/sunny/model"
-	"github.com/jinzhu/gorm"
+	"github.com/dfreire/sunny/test"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	viper.SetEnvPrefix("SUNNY")
-	viper.AutomaticEnv()
-}
-
 func TestSignupCustomerWithNewsletter(t *testing.T) {
-	tx := newDB().Begin()
+	test.Setup()
+	tx := test.CreateDB().Begin()
 	mx := mailer.NewLogMailer()
 
 	reqData := commands.SignupCustomerWithNewsletterRequestData{
@@ -29,15 +23,4 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	}
 
 	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, reqData))
-}
-
-func newDB() *gorm.DB {
-	db, err := gorm.Open("sqlite3", ":memory:")
-	if err != nil {
-		panic(err)
-	}
-
-	model.Initialize(db)
-
-	return db
 }
