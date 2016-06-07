@@ -18,15 +18,7 @@ func init() {
 }
 
 func TestSignupCustomerWithNewsletter(t *testing.T) {
-	db, err := gorm.Open("sqlite3", ":memory:")
-	if err != nil {
-		panic(err)
-	}
-
-	model.Initialize(db)
-
-	tx := db.Begin()
-
+	tx := newDB().Begin()
 	mx := mailer.NewLogMailer()
 
 	reqData := commands.SignupCustomerWithNewsletterRequestData{
@@ -37,4 +29,15 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	}
 
 	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, reqData))
+}
+
+func newDB() *gorm.DB {
+	db, err := gorm.Open("sqlite3", ":memory:")
+	if err != nil {
+		panic(err)
+	}
+
+	model.Initialize(db)
+
+	return db
 }
