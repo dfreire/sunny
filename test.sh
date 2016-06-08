@@ -12,6 +12,18 @@ export SUNNY_TEAM_EMAIL="team-6f66ed903426@mailinator.com"
 export SUNNY_OWNER_EMAIL="owner-6f66ed903426@mailinator.com"
 export SUNNY_NOTIFICATION_EMAILS="a-6f66ed903426@mailinator.com,b-6f66ed903426@mailinator.com"
 
-go test -v -coverprofile=coverage.out ./commands/...
-# go test -v -coverprofile=coverage.out ./handlers/...
-go tool cover -func=coverage.out
+echo "mode: count" > coverage-all.out
+
+# packages=$(glide novendor)
+# packages="./commands/... ./handlers/..."
+packages="./commands/..."
+
+for pkg in $packages; do
+    go test -coverprofile=coverage.out -covermode=count $pkg
+    tail -n +2 coverage.out >> coverage-all.out
+done
+
+rm coverage.out
+    
+# go tool cover -html=coverage-all.out
+go tool cover -func=coverage-all.out
