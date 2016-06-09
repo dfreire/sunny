@@ -25,6 +25,18 @@ type WineComment struct {
 }
 
 func SignupCustomerWithWineComments(db *gorm.DB, mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
+	if err := upsertCustomerOnSignupCustomerWithWineComments(db, reqData); err != nil {
+		return err
+	}
+
+	if err := sendMailOnSignupCustomerWithWineComments(mx, reqData); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func upsertCustomerOnSignupCustomerWithWineComments(db *gorm.DB, reqData SignupCustomerWithWineCommentsRequestData) error {
 	toFind := model.Customer{
 		Email: reqData.Email,
 	}
@@ -37,8 +49,7 @@ func SignupCustomerWithWineComments(db *gorm.DB, mx mailer.Mailer, reqData Signu
 	}
 
 	customer := model.Customer{}
-	err := db.Where(toFind).Attrs(toCreate).FirstOrCreate(&customer).Error
-	if err != nil {
+	if err := db.Where(toFind).Attrs(toCreate).FirstOrCreate(&customer).Error; err != nil {
 		return err
 	}
 
@@ -48,22 +59,20 @@ func SignupCustomerWithWineComments(db *gorm.DB, mx mailer.Mailer, reqData Signu
 		LanguageId: reqData.LanguageId,
 	}
 
-	err = db.Model(&customer).Updates(toUpdate).Error
-	if err != nil {
+	if err := db.Model(&customer).Updates(toUpdate).Error; err != nil {
 		return err
 	}
 
 	for _, comment := range reqData.WineComments {
-		err = upsertWineComment(db, customer.ID, comment)
-		if err != nil {
+		if err := upsertWineCommentOnSignupCustomerWithWineComments(db, customer.ID, comment); err != nil {
 			return err
 		}
 	}
 
-	return sendMailAfterSignupCustomerWithWineComments(mx, reqData)
+	return nil
 }
 
-func upsertWineComment(db *gorm.DB, customerId string, comment WineComment) error {
+func upsertWineCommentOnSignupCustomerWithWineComments(db *gorm.DB, customerId string, comment WineComment) error {
 	toFind := model.WineComment{
 		CustomerId: customerId,
 		WineId:     comment.WineId,
@@ -87,15 +96,14 @@ func upsertWineComment(db *gorm.DB, customerId string, comment WineComment) erro
 	return db.Model(&wineComment).Updates(toUpdate).Error
 }
 
-func sendMailAfterSignupCustomerWithWineComments(mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
+func sendMailOnSignupCustomerWithWineComments(mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
 	e := email.Email{
 		To:  []string{reqData.Email},
 		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
 	templateId := "on-sign-up-customer-with-wine-comments-email"
-	languageId := reqData.LanguageId
-	err := mailer.PrepareEmail(&e, languageId, templateId, nil)
+	err := mailer.PrepareEmail(&e, reqData.LanguageId, templateId, nil)
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,7 @@ type SignupCustomerWithNewsletterRequestData struct {
 }
 
 func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
-	if err := upsertCustomerWithNewsletter(db, reqData); err != nil {
+	if err := upsertCustomerOnSignupCustomerWithNewsletter(db, reqData); err != nil {
 		return err
 	}
 
@@ -28,7 +28,7 @@ func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupC
 	return nil
 }
 
-func upsertCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewsletterRequestData) error {
+func upsertCustomerOnSignupCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewsletterRequestData) error {
 	toFind := model.Customer{
 		Email: reqData.Email,
 	}
