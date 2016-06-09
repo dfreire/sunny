@@ -51,8 +51,9 @@ func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupC
 
 func sendMailAfterSignupCustomerWithNewsletter(mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
 	e := email.Email{
-		To:  []string{reqData.Email},
-		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
+		From: viper.GetString("OWNER_EMAIL"),
+		To:   []string{reqData.Email},
+		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
 	err := mailer.PrepareEmail(&e, reqData.LanguageId, "on-sign-up-customer-with-newsletter-email", nil)

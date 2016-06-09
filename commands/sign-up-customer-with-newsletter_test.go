@@ -26,10 +26,17 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	}
 
 	mx.On("SendEmail", mock.MatchedBy(func(e *email.Email) bool {
-		return e.To[0] == reqData.Email &&
+		return e.From == "owner-6f66ed903426@mailinator.com" &&
+			len(e.To) == 1 &&
+			e.To[0] == reqData.Email &&
+			len(e.Cc) == 0 &&
+			len(e.Bcc) == 2 &&
+			e.Bcc[0] == "a-6f66ed903426@mailinator.com" &&
+			e.Bcc[1] == "b-6f66ed903426@mailinator.com" &&
 			e.Subject == "Newsletter Quinta de Soalheiro" &&
-			strings.Contains(string(e.HTML), "A sua subscrição")
-	})).Return(nil)
+			strings.Contains(string(e.HTML), "A sua subscrição") &&
+			len(e.Attachments) == 0
+	})).Return(nil).Once()
 
 	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, reqData))
 	mx.AssertExpectations(t)
