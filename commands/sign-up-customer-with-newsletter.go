@@ -17,6 +17,18 @@ type SignupCustomerWithNewsletterRequestData struct {
 }
 
 func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
+	if err := upsertCustomerWithNewsletter(db, reqData); err != nil {
+		return err
+	}
+
+	if err := sendMailOnSignupCustomerWithNewsletter(mx, reqData); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func upsertCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewsletterRequestData) error {
 	toFind := model.Customer{
 		Email: reqData.Email,
 	}
@@ -29,8 +41,7 @@ func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupC
 	}
 
 	customer := model.Customer{}
-	err := db.Where(toFind).Attrs(toCreate).FirstOrCreate(&customer).Error
-	if err != nil {
+	if err := db.Where(toFind).Attrs(toCreate).FirstOrCreate(&customer).Error; err != nil {
 		return err
 	}
 
@@ -41,23 +52,18 @@ func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupC
 		OptedInNewsletter: true,
 	}
 
-	err = db.Model(&customer).Updates(toUpdate).Error
-	if err != nil {
-		return err
-	}
-
-	return sendMailAfterSignupCustomerWithNewsletter(mx, reqData)
+	return db.Model(&customer).Updates(toUpdate).Error
 }
 
-func sendMailAfterSignupCustomerWithNewsletter(mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
+func sendMailOnSignupCustomerWithNewsletter(mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
 	e := email.Email{
 		From: viper.GetString("OWNER_EMAIL"),
 		To:   []string{reqData.Email},
 		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
-	err := mailer.PrepareEmail(&e, reqData.LanguageId, "on-sign-up-customer-with-newsletter-email", nil)
-	if err != nil {
+	templateId := "on-sign-up-customer-with-newsletter-email"
+	if err := mailer.PrepareEmail(&e, reqData.LanguageId, templateId, nil); err != nil {
 		return err
 	}
 
