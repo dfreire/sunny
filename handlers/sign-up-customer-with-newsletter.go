@@ -18,8 +18,7 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 	var reqData commands.SignupCustomerWithNewsletterRequestData
 	c.Bind(&reqData)
 
-	err := commands.SignupCustomerWithNewsletter(tx, mx, reqData)
-	if err != nil {
+	if err := commands.SignupCustomerWithNewsletter(tx, mx, reqData); err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
