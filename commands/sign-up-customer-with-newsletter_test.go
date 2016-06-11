@@ -18,7 +18,7 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	tx := test.CreateDB().Begin()
 	mx := &mocks.Mailer{}
 
-	reqData := commands.SignupCustomerWithNewsletterRequestData{
+	req := commands.SignupCustomerWithNewsletterRequest{
 		Name:       "Joe Doe",
 		Email:      "joe.doe@mailinator.com",
 		RoleId:     "wine_lover",
@@ -28,7 +28,7 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	mx.On("SendEmail", mock.MatchedBy(func(e *email.Email) bool {
 		return e.From == "owner-6f66ed903426@mailinator.com" &&
 			len(e.To) == 1 &&
-			e.To[0] == reqData.Email &&
+			e.To[0] == req.Email &&
 			len(e.Cc) == 0 &&
 			len(e.Bcc) == 2 &&
 			e.Bcc[0] == "a-6f66ed903426@mailinator.com" &&
@@ -38,6 +38,6 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 			len(e.Attachments) == 0
 	})).Return(nil).Once()
 
-	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, reqData))
+	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, req))
 	mx.AssertExpectations(t)
 }

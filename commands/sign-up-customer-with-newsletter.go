@@ -9,35 +9,35 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-type SignupCustomerWithNewsletterRequestData struct {
+type SignupCustomerWithNewsletterRequest struct {
 	Name       string `json:"name,omitempty"`
 	Email      string `json:"email"`
 	RoleId     string `json:"roleId"`
 	LanguageId string `json:"language"`
 }
 
-func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
-	if err := upsertCustomerOnSignupCustomerWithNewsletter(db, reqData); err != nil {
+func SignupCustomerWithNewsletter(db *gorm.DB, mx mailer.Mailer, req SignupCustomerWithNewsletterRequest) error {
+	if err := upsertCustomerOnSignupCustomerWithNewsletter(db, req); err != nil {
 		return err
 	}
 
-	if err := sendMailOnSignupCustomerWithNewsletter(mx, reqData); err != nil {
+	if err := sendMailOnSignupCustomerWithNewsletter(mx, req); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func upsertCustomerOnSignupCustomerWithNewsletter(db *gorm.DB, reqData SignupCustomerWithNewsletterRequestData) error {
+func upsertCustomerOnSignupCustomerWithNewsletter(db *gorm.DB, req SignupCustomerWithNewsletterRequest) error {
 	toFind := model.Customer{
-		Email: reqData.Email,
+		Email: req.Email,
 	}
 
 	toCreate := model.Customer{
 		ID:         bson.NewObjectId().Hex(),
-		Email:      reqData.Email,
-		RoleId:     reqData.RoleId,
-		LanguageId: reqData.LanguageId,
+		Email:      req.Email,
+		RoleId:     req.RoleId,
+		LanguageId: req.LanguageId,
 	}
 
 	customer := model.Customer{}
@@ -46,24 +46,24 @@ func upsertCustomerOnSignupCustomerWithNewsletter(db *gorm.DB, reqData SignupCus
 	}
 
 	toUpdate := model.Customer{
-		Name:              reqData.Name,
-		RoleId:            reqData.RoleId,
-		LanguageId:        reqData.LanguageId,
+		Name:              req.Name,
+		RoleId:            req.RoleId,
+		LanguageId:        req.LanguageId,
 		OptedInNewsletter: true,
 	}
 
 	return db.Model(&customer).Updates(toUpdate).Error
 }
 
-func sendMailOnSignupCustomerWithNewsletter(mx mailer.Mailer, reqData SignupCustomerWithNewsletterRequestData) error {
+func sendMailOnSignupCustomerWithNewsletter(mx mailer.Mailer, req SignupCustomerWithNewsletterRequest) error {
 	e := email.Email{
 		From: viper.GetString("OWNER_EMAIL"),
-		To:   []string{reqData.Email},
+		To:   []string{req.Email},
 		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
 	templateId := "on-sign-up-customer-with-newsletter-email"
-	if err := mailer.PrepareEmail(&e, reqData.LanguageId, templateId, nil); err != nil {
+	if err := mailer.PrepareEmail(&e, req.LanguageId, templateId, nil); err != nil {
 		return err
 	}
 

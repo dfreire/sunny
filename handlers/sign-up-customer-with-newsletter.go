@@ -15,10 +15,10 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	mx := c.Get(middleware.MAILER).(mailer.Mailer)
 
-	var reqData commands.SignupCustomerWithNewsletterRequestData
-	c.Bind(&reqData)
+	var req commands.SignupCustomerWithNewsletterRequest
+	c.Bind(&req)
 
-	if err := commands.SignupCustomerWithNewsletter(tx, mx, reqData); err != nil {
+	if err := commands.SignupCustomerWithNewsletter(tx, mx, req); err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}
