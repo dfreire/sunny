@@ -6,6 +6,7 @@ import (
 
 	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mocks"
+	"github.com/dfreire/sunny/queries"
 	"github.com/dfreire/sunny/test"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/jordan-wright/email"
@@ -39,5 +40,13 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	})).Return(nil).Once()
 
 	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, req))
+
+	customer, err := queries.GetCustomerByEmail(tx, req.Email)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Name, customer.Name)
+	assert.Equal(t, req.Email, customer.Email)
+	assert.Equal(t, req.RoleId, customer.RoleId)
+	assert.Equal(t, req.LanguageId, customer.LanguageId)
+
 	mx.AssertExpectations(t)
 }
