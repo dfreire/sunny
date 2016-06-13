@@ -5,9 +5,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func GetCustomerByEmail(db *gorm.DB, email string) (model.Customer, error) {
+func GetCustomerByEmail(db *gorm.DB, email string) (*model.Customer, error) {
 	customer := model.Customer{}
 	err := db.Where("email = ?", email).First(&customer).Error
 
-	return customer, err
+	return &customer, err
 }
