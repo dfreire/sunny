@@ -104,7 +104,7 @@ func sendMailOnSignupCustomerWithWineComments(mx mailer.Mailer, req SignupCustom
 	}
 
 	templateId := "on-sign-up-customer-with-wine-comments-email"
-	err := mailer.PrepareEmail(&e, req.LanguageId, templateId, nil)
+	err := mailer.PrepareEmail(&e, req.LanguageId, templateId, req)
 	if err != nil {
 		return err
 	}

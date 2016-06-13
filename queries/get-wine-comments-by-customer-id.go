@@ -7,6 +7,6 @@ import (
 
 func GetWineCommentsByCustomerId(db *gorm.DB, customerId string) ([]model.WineComment, error) {
 	var comments []model.WineComment
-	err := db.Where("customerId = ?", customerId).Find(&comments).Error
+	err := db.Where("customer_id = ?", customerId).Find(&comments).Error
 	return comments, err
 }
