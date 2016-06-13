@@ -9,7 +9,7 @@ import (
 	"labix.org/v2/mgo/bson"
 )
 
-type SignupCustomerWithWineCommentsRequestData struct {
+type SignupCustomerWithWineCommentsRequest struct {
 	Name         string        `json:"name,omitempty"`
 	Email        string        `json:"email"`
 	RoleId       string        `json:"roleId"`
@@ -24,28 +24,28 @@ type WineComment struct {
 	Comment  string `json:"comment"`
 }
 
-func SignupCustomerWithWineComments(db *gorm.DB, mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
-	if err := upsertCustomerOnSignupCustomerWithWineComments(db, reqData); err != nil {
+func SignupCustomerWithWineComments(db *gorm.DB, mx mailer.Mailer, req SignupCustomerWithWineCommentsRequest) error {
+	if err := upsertCustomerOnSignupCustomerWithWineComments(db, req); err != nil {
 		return err
 	}
 
-	if err := sendMailOnSignupCustomerWithWineComments(mx, reqData); err != nil {
+	if err := sendMailOnSignupCustomerWithWineComments(mx, req); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func upsertCustomerOnSignupCustomerWithWineComments(db *gorm.DB, reqData SignupCustomerWithWineCommentsRequestData) error {
+func upsertCustomerOnSignupCustomerWithWineComments(db *gorm.DB, req SignupCustomerWithWineCommentsRequest) error {
 	toFind := model.Customer{
-		Email: reqData.Email,
+		Email: req.Email,
 	}
 
 	toCreate := model.Customer{
 		ID:         bson.NewObjectId().Hex(),
-		Email:      reqData.Email,
-		RoleId:     reqData.RoleId,
-		LanguageId: reqData.LanguageId,
+		Email:      req.Email,
+		RoleId:     req.RoleId,
+		LanguageId: req.LanguageId,
 	}
 
 	customer := model.Customer{}
@@ -54,16 +54,16 @@ func upsertCustomerOnSignupCustomerWithWineComments(db *gorm.DB, reqData SignupC
 	}
 
 	toUpdate := model.Customer{
-		Name:       reqData.Name,
-		RoleId:     reqData.RoleId,
-		LanguageId: reqData.LanguageId,
+		Name:       req.Name,
+		RoleId:     req.RoleId,
+		LanguageId: req.LanguageId,
 	}
 
 	if err := db.Model(&customer).Updates(toUpdate).Error; err != nil {
 		return err
 	}
 
-	for _, comment := range reqData.WineComments {
+	for _, comment := range req.WineComments {
 		if err := upsertWineCommentOnSignupCustomerWithWineComments(db, customer.ID, comment); err != nil {
 			return err
 		}
@@ -96,14 +96,15 @@ func upsertWineCommentOnSignupCustomerWithWineComments(db *gorm.DB, customerId s
 	return db.Model(&wineComment).Updates(toUpdate).Error
 }
 
-func sendMailOnSignupCustomerWithWineComments(mx mailer.Mailer, reqData SignupCustomerWithWineCommentsRequestData) error {
+func sendMailOnSignupCustomerWithWineComments(mx mailer.Mailer, req SignupCustomerWithWineCommentsRequest) error {
 	e := email.Email{
-		To:  []string{reqData.Email},
-		Bcc: viper.GetStringSlice("NOTIFICATION_EMAILS"),
+		From: viper.GetString("OWNER_EMAIL"),
+		To:   []string{req.Email},
+		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
 	templateId := "on-sign-up-customer-with-wine-comments-email"
-	err := mailer.PrepareEmail(&e, reqData.LanguageId, templateId, nil)
+	err := mailer.PrepareEmail(&e, req.LanguageId, templateId, nil)
 	if err != nil {
 		return err
 	}

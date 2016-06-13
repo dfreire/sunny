@@ -8,6 +8,5 @@ import (
 func GetCustomerByEmail(db *gorm.DB, email string) (*model.Customer, error) {
 	customer := model.Customer{}
 	err := db.Where("email = ?", email).First(&customer).Error
-
 	return &customer, err
 }
