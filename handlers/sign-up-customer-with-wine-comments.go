@@ -15,10 +15,10 @@ func SignupCustomerWithWineComments(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	mx := c.Get(middleware.MAILER).(mailer.Mailer)
 
-	var reqData commands.SignupCustomerWithWineCommentsRequestData
-	c.Bind(&reqData)
+	var req commands.SignupCustomerWithWineCommentsRequest
+	c.Bind(&req)
 
-	err := commands.SignupCustomerWithWineComments(tx, mx, reqData)
+	err := commands.SignupCustomerWithWineComments(tx, mx, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
