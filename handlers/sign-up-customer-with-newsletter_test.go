@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/handlers"
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
@@ -25,9 +24,9 @@ func init() {
 func TestSignupCustomerWithNewsletter(t *testing.T) {
 	c := createMockContext()
 
-	c.On("Bind", mock.AnythingOfType("*commands.SignupCustomerWithNewsletterRequestData")).
+	c.On("Bind", mock.AnythingOfType("*operations.SignupCustomerWithNewsletterRequestData")).
 		Run(func(args mock.Arguments) {
-			arg := args.Get(0).(*commands.SignupCustomerWithNewsletterRequestData)
+			arg := args.Get(0).(*operations.SignupCustomerWithNewsletterRequestData)
 			arg.Name = "Joe Doe"
 			arg.Email = "joe.doe@mailinator.com"
 			arg.RoleId = "wine_lover"

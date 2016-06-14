@@ -1,12 +1,11 @@
-package commands_test
+package operations_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mocks"
-	"github.com/dfreire/sunny/queries"
+	"github.com/dfreire/sunny/operations"
 	"github.com/dfreire/sunny/test"
 	"github.com/jordan-wright/email"
 	"github.com/stretchr/testify/assert"
@@ -18,21 +17,21 @@ func TestSignupCustomerWithWineComments(t *testing.T) {
 	tx := test.CreateDB().Begin()
 	mx := &mocks.Mailer{}
 
-	req := commands.SignupCustomerWithWineCommentsRequest{
+	req := operations.SignupCustomerWithWineCommentsRequest{
 		Name:       "Joe Doe",
 		Email:      "joe.doe@mailinator.com",
 		RoleId:     "wine_lover",
 		LanguageId: "pt",
 	}
 
-	req.WineComments = append(req.WineComments, commands.WineComment{
+	req.WineComments = append(req.WineComments, operations.WineComment{
 		WineId:   "soalheiro-alvarinho-2015",
 		WineName: "Soalheiro Alvarinho",
 		WineYear: 2015,
 		Comment:  "Muito bom!",
 	})
 
-	req.WineComments = append(req.WineComments, commands.WineComment{
+	req.WineComments = append(req.WineComments, operations.WineComment{
 		WineId:   "soalheiro-primeiras-vinhas-2015",
 		WineName: "Soalheiro Primeiras Vinhas",
 		WineYear: 2015,
@@ -57,16 +56,16 @@ func TestSignupCustomerWithWineComments(t *testing.T) {
 			len(e.Attachments) == 0
 	})).Return(nil).Once()
 
-	assert.Nil(t, commands.SignupCustomerWithWineComments(tx, mx, req))
+	assert.Nil(t, operations.SignupCustomerWithWineComments(tx, mx, req))
 
-	customer, err := queries.GetCustomerByEmail(tx, req.Email)
+	customer, err := operations.GetCustomerByEmail(tx, req.Email)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Name, customer.Name)
 	assert.Equal(t, req.Email, customer.Email)
 	assert.Equal(t, req.RoleId, customer.RoleId)
 	assert.Equal(t, req.LanguageId, customer.LanguageId)
 
-	comments, err := queries.GetWineCommentsByCustomerId(tx, customer.ID)
+	comments, err := operations.GetWineCommentsByCustomerId(tx, customer.ID)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(comments))
 	for i := 0; i < 2; i++ {

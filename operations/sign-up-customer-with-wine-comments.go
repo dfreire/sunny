@@ -1,4 +1,4 @@
-package commands
+package operations
 
 import (
 	"github.com/dfreire/sunny/mailer"

@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/middleware"
+	"github.com/dfreire/sunny/operations"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
@@ -15,10 +15,10 @@ func SignupCustomerWithNewsletter(c echo.Context) error {
 	tx := c.Get(middleware.TX).(*gorm.DB)
 	mx := c.Get(middleware.MAILER).(mailer.Mailer)
 
-	var req commands.SignupCustomerWithNewsletterRequest
+	var req operations.SignupCustomerWithNewsletterRequest
 	c.Bind(&req)
 
-	if err := commands.SignupCustomerWithNewsletter(tx, mx, req); err != nil {
+	if err := operations.SignupCustomerWithNewsletter(tx, mx, req); err != nil {
 		c.JSON(http.StatusInternalServerError, jsonResponse{Ok: false})
 		return err
 	}

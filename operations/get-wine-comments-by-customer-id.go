@@ -1,4 +1,4 @@
-package queries
+package operations
 
 import (
 	"github.com/dfreire/sunny/model"

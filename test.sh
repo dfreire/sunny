@@ -15,8 +15,8 @@ export SUNNY_NOTIFICATION_EMAILS="a-6f66ed903426@mailinator.com b-6f66ed903426@m
 echo "mode: count" > coverage-all.out
 
 # packages=$(glide novendor)
-# packages="./commands/... ./handlers/..."
-packages="./commands/..."
+# packages="./operations/... ./handlers/..."
+packages="./operations/..."
 
 for pkg in $packages; do
     go test -coverprofile=coverage.out -covermode=count $pkg

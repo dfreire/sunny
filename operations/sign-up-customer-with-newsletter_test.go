@@ -1,12 +1,11 @@
-package commands_test
+package operations_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/dfreire/sunny/commands"
 	"github.com/dfreire/sunny/mocks"
-	"github.com/dfreire/sunny/queries"
+	"github.com/dfreire/sunny/operations"
 	"github.com/dfreire/sunny/test"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/jordan-wright/email"
@@ -19,7 +18,7 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	tx := test.CreateDB().Begin()
 	mx := &mocks.Mailer{}
 
-	req := commands.SignupCustomerWithNewsletterRequest{
+	req := operations.SignupCustomerWithNewsletterRequest{
 		Name:       "Joe Doe",
 		Email:      "joe.doe@mailinator.com",
 		RoleId:     "wine_lover",
@@ -39,9 +38,9 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 			len(e.Attachments) == 0
 	})).Return(nil).Once()
 
-	assert.Nil(t, commands.SignupCustomerWithNewsletter(tx, mx, req))
+	assert.Nil(t, operations.SignupCustomerWithNewsletter(tx, mx, req))
 
-	customer, err := queries.GetCustomerByEmail(tx, req.Email)
+	customer, err := operations.GetCustomerByEmail(tx, req.Email)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Name, customer.Name)
 	assert.Equal(t, req.Email, customer.Email)
