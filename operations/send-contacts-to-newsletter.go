@@ -1,6 +1,8 @@
 package operations
 
 import (
+	"log"
+
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
@@ -9,7 +11,7 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-func SendToNewsletter(db *gorm.DB, mx mailer.Mailer) error {
+func SendContactsToNewsletter(db *gorm.DB, mx mailer.Mailer) error {
 	customers := []model.Customer{}
 	err := db.Where(map[string]interface{}{
 		"opted_out_newsletter": false,
@@ -18,6 +20,8 @@ func SendToNewsletter(db *gorm.DB, mx mailer.Mailer) error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("contacts: %+v", customers)
 
 	if len(customers) > 0 {
 		ids := []string{}
