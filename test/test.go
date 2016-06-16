@@ -12,7 +12,7 @@ func init() {
 }
 
 func Setup() {
-	// nothing to do yet, but present to force init()
+	// nothing to do, but to force init()
 }
 
 func CreateDB() *gorm.DB {
