@@ -1,8 +1,6 @@
 package operations
 
 import (
-	"log"
-
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
@@ -20,8 +18,6 @@ func SendContactsToNewsletter(db *gorm.DB, mx mailer.Mailer) error {
 	if err != nil {
 		return err
 	}
-
-	log.Printf("contacts: %+v", customers)
 
 	if len(customers) > 0 {
 		ids := []string{}
