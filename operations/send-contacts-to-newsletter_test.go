@@ -21,7 +21,7 @@ func TestSendContactsToNewsletter(t *testing.T) {
 
 	// customers, err := operations.GetCustomers(tx)
 	// assert.Nil(t, err)
-	// log.Printf("CUSTOMERS2: %+v", customers)
+	// log.Printf("CUSTOMERS: %+v", customers)
 
 	mx.On("SendEmail", mock.MatchedBy(func(e *email.Email) bool {
 		return e.From == "team-6f66ed903426@mailinator.com" &&
