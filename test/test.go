@@ -25,3 +25,15 @@ func CreateDB() *gorm.DB {
 
 	return db
 }
+
+func SeedData(db *gorm.DB) {
+	db.Create(&model.Customer{
+		Name:               "Joe Doe",
+		Email:              "joe.doe@mailinator.com",
+		RoleId:             "wine_lover",
+		LanguageId:         "pt",
+		OptedInNewsletter:  true,
+		OptedOutNewsletter: false,
+		SentToNewsletter:   false,
+	})
+}

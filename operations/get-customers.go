@@ -7,6 +7,6 @@ import (
 
 func GetCustomers(db *gorm.DB) ([]model.Customer, error) {
 	customers := []model.Customer{}
-	err := db.Preload("Role").Find(&customers).Error
+	err := db.Preload("Role").Preload("Language").Find(&customers).Error
 	return customers, err
 }
