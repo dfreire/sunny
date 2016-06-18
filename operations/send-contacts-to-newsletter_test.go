@@ -10,6 +10,7 @@ import (
 	"github.com/jordan-wright/email"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"github.com/tealeg/xlsx"
 )
 
@@ -21,34 +22,23 @@ func TestSendContactsToNewsletter(t *testing.T) {
 	test.SeedData(tx)
 
 	mx.On("SendEmail", mock.MatchedBy(func(e *email.Email) bool {
-		mailOk := e.From == "team-6f66ed903426@mailinator.com" &&
-			len(e.To) == 1 &&
-			e.To[0] == "owner-6f66ed903426@mailinator.com" &&
-			len(e.Cc) == 0 &&
-			len(e.Bcc) == 2 &&
-			e.Bcc[0] == "a-6f66ed903426@mailinator.com" &&
-			e.Bcc[1] == "b-6f66ed903426@mailinator.com" &&
-			e.Subject == "Registos recebidos no website" &&
-			strings.Contains(string(e.HTML), "Este é um mail enviado automaticamente") &&
-			len(e.Attachments) == 1
-
-		if !mailOk {
-			return false
-		}
+		require.Equal(t, "team-6f66ed903426@mailinator.com", e.From)
+		require.Equal(t, 1, len(e.To))
+		require.Equal(t, "owner-6f66ed903426@mailinator.com", e.To[0])
+		require.Equal(t, 0, len(e.Cc))
+		require.Equal(t, 2, len(e.Bcc))
+		require.Equal(t, "a-6f66ed903426@mailinator.com", e.Bcc[0])
+		require.Equal(t, "b-6f66ed903426@mailinator.com", e.Bcc[1])
+		require.Equal(t, "Registos recebidos no website", e.Subject)
+		require.True(t, strings.Contains(string(e.HTML), "Este é um mail enviado automaticamente"))
+		require.Equal(t, 1, len(e.Attachments))
 
 		excelFile, err := xlsx.OpenBinary(e.Attachments[0].Content)
-		if err != nil {
-			return false
-		}
-
-		if len(excelFile.Sheets) != 1 {
-			return false
-		}
+		require.Nil(t, err)
+		require.Equal(t, 1, len(excelFile.Sheets))
 
 		sheet := excelFile.Sheets[0]
-		if sheet.Name != "Registos" {
-			return false
-		}
+		require.Equal(t, "Registos", sheet.Name)
 
 		return true
 	})).Return(nil).Once()
