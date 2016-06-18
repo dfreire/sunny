@@ -10,6 +10,7 @@ import (
 	"github.com/jordan-wright/email"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/tealeg/xlsx"
 )
 
 func TestSendContactsToNewsletter(t *testing.T) {
@@ -19,12 +20,8 @@ func TestSendContactsToNewsletter(t *testing.T) {
 
 	test.SeedData(tx)
 
-	// customers, err := operations.GetCustomers(tx)
-	// assert.Nil(t, err)
-	// log.Printf("CUSTOMERS: %+v", customers)
-
 	mx.On("SendEmail", mock.MatchedBy(func(e *email.Email) bool {
-		return e.From == "team-6f66ed903426@mailinator.com" &&
+		mailOk := e.From == "team-6f66ed903426@mailinator.com" &&
 			len(e.To) == 1 &&
 			e.To[0] == "owner-6f66ed903426@mailinator.com" &&
 			len(e.Cc) == 0 &&
@@ -34,6 +31,26 @@ func TestSendContactsToNewsletter(t *testing.T) {
 			e.Subject == "Registos recebidos no website" &&
 			strings.Contains(string(e.HTML), "Este é um mail enviado automaticamente") &&
 			len(e.Attachments) == 1
+
+		if !mailOk {
+			return false
+		}
+
+		excelFile, err := xlsx.OpenBinary(e.Attachments[0].Content)
+		if err != nil {
+			return false
+		}
+
+		if len(excelFile.Sheets) != 1 {
+			return false
+		}
+
+		sheet := excelFile.Sheets[0]
+		if sheet.Name != "Registos" {
+			return false
+		}
+
+		return true
 	})).Return(nil).Once()
 
 	assert.Nil(t, operations.SendContactsToNewsletter(tx, mx))
