@@ -1,7 +1,6 @@
 package operations_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/dfreire/sunny/mocks"
@@ -11,6 +10,7 @@ import (
 	"github.com/jordan-wright/email"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSignupCustomerWithNewsletter(t *testing.T) {
@@ -26,16 +26,17 @@ func TestSignupCustomerWithNewsletter(t *testing.T) {
 	}
 
 	mx.On("SendEmail", mock.MatchedBy(func(e *email.Email) bool {
-		return e.From == "owner-6f66ed903426@mailinator.com" &&
-			len(e.To) == 1 &&
-			e.To[0] == req.Email &&
-			len(e.Cc) == 0 &&
-			len(e.Bcc) == 2 &&
-			e.Bcc[0] == "a-6f66ed903426@mailinator.com" &&
-			e.Bcc[1] == "b-6f66ed903426@mailinator.com" &&
-			e.Subject == "Newsletter Quinta de Soalheiro" &&
-			strings.Contains(string(e.HTML), "A sua subscrição") &&
-			len(e.Attachments) == 0
+		require.Equal(t, "owner-6f66ed903426@mailinator.com", e.From)
+		require.Equal(t, 1, len(e.To))
+		require.Equal(t, req.Email, e.To[0])
+		require.Equal(t, 0, len(e.Cc))
+		require.Equal(t, 2, len(e.Bcc))
+		require.Equal(t, "a-6f66ed903426@mailinator.com", e.Bcc[0])
+		require.Equal(t, "b-6f66ed903426@mailinator.com", e.Bcc[1])
+		require.Equal(t, "Newsletter Quinta de Soalheiro", e.Subject)
+		require.Contains(t, string(e.HTML), "A sua subscrição")
+		require.Equal(t, 0, len(e.Attachments))
+		return true
 	})).Return(nil).Once()
 
 	assert.Nil(t, operations.SignupCustomerWithNewsletter(tx, mx, req))
