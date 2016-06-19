@@ -1,7 +1,6 @@
 package operations_test
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/dfreire/sunny/mocks"
@@ -30,15 +29,28 @@ func TestSendContactsToNewsletter(t *testing.T) {
 		require.Equal(t, "a-6f66ed903426@mailinator.com", e.Bcc[0])
 		require.Equal(t, "b-6f66ed903426@mailinator.com", e.Bcc[1])
 		require.Equal(t, "Registos recebidos no website", e.Subject)
-		require.True(t, strings.Contains(string(e.HTML), "Este é um mail enviado automaticamente"))
+		require.Contains(t, string(e.HTML), "Este é um mail enviado automaticamente")
 		require.Equal(t, 1, len(e.Attachments))
 
 		excelFile, err := xlsx.OpenBinary(e.Attachments[0].Content)
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, 1, len(excelFile.Sheets))
 
 		sheet := excelFile.Sheets[0]
 		require.Equal(t, "Registos", sheet.Name)
+
+		expectedRows := [][]string{
+			[]string{"Nome", "Email", "Perfil", "Idioma"},
+			[]string{"Joe Doe", "joe.doe@mailinator.com", "wine_lover", "pt"},
+		}
+
+		for i, row := range sheet.Rows {
+			for j, expectedValue := range expectedRows[i] {
+				actualValue, err := row.Cells[j].String()
+				require.NoError(t, err)
+				require.Equal(t, expectedValue, actualValue)
+			}
+		}
 
 		return true
 	})).Return(nil).Once()
