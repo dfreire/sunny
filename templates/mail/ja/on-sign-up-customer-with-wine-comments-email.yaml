@@ -1,0 +1,18 @@
+subject: キンタ・デ・ソアリェイロ テイスティング
+html: >
+    {{range .WineComments}}
+        <p><b>{{ .WineName }}{{ if .WineYear }} {{ .WineYear }}{{ end }}</b><br/>
+        {{ .Comment }}</p>
+    {{ end }}
+    
+    <br/>
+    <p>この機会に、キンタ・デ・ソアリェイロのニュースレターに登録させていただきます。</p>
+    
+    <p>あなたのメールアドレス宛に最新ニュースをお送りします。</p>
+    
+    <p>もし何らかの理由で登録をキャンセルされたい場合は、次のアドレスまでメールをお送りください。
+    <a href="mailto:quinta@soalheiro.com?subject=Cancel Newsletter Subscription">quinta@soalheiro.com</a>.</p>
+    
+    <p>ご愛顧に感謝申し上げます。,</p>
+    <p>Quinta de Soalheiro<br/>
+    <a href="http://www.soalheiro.com">www.soalheiro.com</a></p>
