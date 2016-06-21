@@ -1,0 +1,12 @@
+subject: Newsletter von Quinta de Soalheiro
+html: >
+    <p>Wir haben Ihre Subskription zum Newsletter von Quinta de Soalheiro erhalten.</p>
+    
+    <p>Wir werden an Ihre E-Mail-Adresse die aktuellsten Neuigkeiten versenden.</p>
+    
+    <p>Falls Sie die Subskription aus irgendeinem Grund stornieren möchten, senden Sie uns bitte eine E-Mail an
+    <a href="mailto:quinta@soalheiro.com?subject=Cancel Newsletter Subscription">quinta@soalheiro.com</a>.</p>
+    
+    <p>Danke für Ihr Vertrauen!</p>
+    <p>Quinta de Soalheiro<br/>
+    <a href="http://www.soalheiro.com">www.soalheiro.com</a></p>
