@@ -1,8 +1,8 @@
 **.swp
 **.DS_Store
 .vscode/
+tmp/
 vendor/
 **.db
 coverage.out
 coverage-all.out
-emails.xlsx

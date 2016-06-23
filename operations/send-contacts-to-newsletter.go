@@ -1,6 +1,8 @@
 package operations
 
 import (
+	"path"
+
 	"github.com/dfreire/sunny/mailer"
 	"github.com/dfreire/sunny/model"
 	"github.com/jinzhu/gorm"
@@ -33,21 +35,25 @@ func SendContactsToNewsletter(db *gorm.DB, mx mailer.Mailer) error {
 			return err
 		}
 
-		fileName := "emails.xlsx"
+		filePath := path.Join(viper.GetString("MAILER_ATTACHMENTS_DIR"), "emails.xlsx")
 
-		if err = exportEmailsToFile(customers, fileName); err != nil {
+		if err = exportEmailsToFile(customers, filePath); err != nil {
 			return err
 		}
 
-		if err = sendMailToNewsletter(mx, fileName); err != nil {
+		if err = sendMailToNewsletter(mx, filePath); err != nil {
 			return err
 		}
+
+		// if err = os.Remove(filePath); err != nil {
+		// 	return err
+		// }
 	}
 
 	return nil
 }
 
-func exportEmailsToFile(customers []model.Customer, fileName string) error {
+func exportEmailsToFile(customers []model.Customer, filePath string) error {
 	file := xlsx.NewFile()
 
 	sheet, err := file.AddSheet("Registos")
@@ -71,17 +77,17 @@ func exportEmailsToFile(customers []model.Customer, fileName string) error {
 
 	sheet.SetColWidth(0, 5, 25)
 
-	return file.Save(fileName)
+	return file.Save(filePath)
 }
 
-func sendMailToNewsletter(m mailer.Mailer, fileName string) error {
+func sendMailToNewsletter(m mailer.Mailer, filePath string) error {
 	e := email.Email{
 		From: viper.GetString("TEAM_EMAIL"),
 		To:   []string{viper.GetString("OWNER_EMAIL")},
 		Bcc:  viper.GetStringSlice("NOTIFICATION_EMAILS"),
 	}
 
-	e.AttachFile(fileName)
+	e.AttachFile(filePath)
 
 	languageId := "pt"
 	templateId := "send-to-newsletter-email"
