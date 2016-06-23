@@ -35,7 +35,7 @@ func SendContactsToNewsletter(db *gorm.DB, mx mailer.Mailer) error {
 			return err
 		}
 
-		filePath := path.Join(viper.GetString("MAILER_ATTACHMENTS_DIR"), "emails.xlsx")
+		filePath := path.Join(viper.GetString("TMP_DIR"), "emails.xlsx")
 
 		if err = exportEmailsToFile(customers, filePath); err != nil {
 			return err
