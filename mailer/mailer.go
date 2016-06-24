@@ -18,7 +18,7 @@ type Mailer interface {
 
 func PrepareEmail(e *email.Email, languageId, templateId string, templateValues interface{}) error {
 	switch languageId {
-	case "pt", "en":
+	case "pt", "en", "de", "ja":
 		break
 	default:
 		languageId = "en"

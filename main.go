@@ -66,10 +66,10 @@ func createMiddlewareWithMailer() echo.MiddlewareFunc {
 	if viper.GetString("MAILER") == "log" {
 		return middleware.WithMailer(mailer.NewLogMailer())
 	} else {
-		smtpHost := viper.GetString("smtp.host")
-		smtpPort := viper.GetInt("smtp.port")
-		smtpLogin := viper.GetString("smtp.login")
-		smtpPassword := viper.GetString("smtp.password")
+		smtpHost := viper.GetString("SMTP_HOST")
+		smtpPort := viper.GetInt("SMTP_PORT")
+		smtpLogin := viper.GetString("SMTP_LOGIN")
+		smtpPassword := viper.GetString("SMTP_PASSWORD")
 		return middleware.WithMailer(mailer.NewMailer(smtpHost, smtpPort, smtpLogin, smtpPassword))
 	}
 }
