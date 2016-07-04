@@ -6,3 +6,4 @@ vendor/
 **.db
 coverage.out
 coverage-all.out
+glide.lock
